@@ -276,6 +276,7 @@ vtkIGTLToMRMLDepthVideo::vtkIGTLToMRMLDepthVideo()
   SetupDecoder();
   RGBFrame = NULL;
   DepthFrame = NULL;
+  DepthIndex = NULL;
   RequireYUVToRBGConversion = true;
 }
 

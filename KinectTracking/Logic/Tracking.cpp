@@ -236,7 +236,7 @@ drawResult ()
   {
     cloudProcessed->InsertNextPoint(result_cloud->at(index).data[0],result_cloud->at(index).data[1],result_cloud->at(index).data[2]);
     unsigned char color[3] = {refCloud->at(index).r,refCloud->at(index).g,refCloud->at(index).b};//result_cloud->at(index).r,result_cloud->at(index).g,result_cloud->at(index).b};
-    colorsProcessed->SetTypedTuple(index, color);
+    colorsProcessed->InsertNextTypedTuple(color);
   }
   
   ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
@@ -247,7 +247,7 @@ drawResult ()
     {
       cloudProcessed->InsertNextPoint(particles->points[i].x,particles->points[i].y,particles->points[i].z);
       unsigned char color[3] = {255,0,0};
-      colorsProcessed->SetTypedTuple(i, color);
+      colorsProcessed->InsertNextTypedTuple(color);
     }
   }
 }
@@ -273,7 +273,7 @@ void TrackCylindarObject (vtkSmartPointer<vtkPolyData> polydata)
   {
     cloudProcessed->InsertNextPoint(cloud_pass_->at(index).data[0],cloud_pass_->at(index).data[1],cloud_pass_->at(index).data[2]);
     unsigned char color[3] = {cloud_pass_->at(index).r,cloud_pass_->at(index).g,cloud_pass_->at(index).b};
-    colorsProcessed->SetTypedTuple(index, color);
+    colorsProcessed->InsertNextTypedTuple(color);
   }
   drawResult();
   polydata->SetPoints(cloudProcessed);

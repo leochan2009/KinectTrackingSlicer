@@ -100,7 +100,7 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::ConvertDepthToPoints(
             pt[1] = static_cast<float> (-v) * pt[2] * constant;
             cloud->InsertNextPoint(pt[0],pt[1],pt[2]);
             unsigned char color[3] = {bufColor[3*depth_idx],bufColor[3*depth_idx+1],bufColor[3*depth_idx+2]};
-            colors->SetTypedTuple(pointNum,color);
+            colors->InsertNextTypedTuple(color);
             pointNum ++;
             break;
           }
@@ -135,7 +135,7 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::ConvertDepthToPoints(
           pt[1] = static_cast<float> (-v) * pt[2] * constant;
           cloud->InsertNextPoint(pt[0],pt[1],pt[2]);
           unsigned char color[3] = {bufColor[3*depth_idx],bufColor[3*depth_idx+1],bufColor[3*depth_idx+2]};
-          colors->SetTypedTuple(pointNum, color);
+          colors->InsertNextTypedTuple(color);
           pointNum ++;
         }
       }
@@ -168,7 +168,7 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::ConvertDepthToPoints(
         pt[1] = static_cast<float> (-v) * pt[2] * constant;
         cloud->InsertNextPoint(pt[0],pt[1],pt[2]);
         unsigned char color[3] = {bufColor[3*depth_idx],bufColor[3*depth_idx+1],bufColor[3*depth_idx+2]};
-        colors->SetTypedTuple(pointNum,color);
+        colors->InsertNextTypedTuple(color);
         //delete[] color;
         pointNum ++;
       }
