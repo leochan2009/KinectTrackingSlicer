@@ -222,13 +222,13 @@
                 </stringlist>
               </property>
               <property name="addEnabled" stdset="0">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="removeEnabled" stdset="0">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="showChildNodeTypes" stdset="0">
-                <bool>false</bool>
+                <bool>true</bool>
               </property>
               <property name="selectNodeUponCreation" stdset="0">
                 <bool>true</bool>
@@ -270,5 +270,22 @@
   <tabstop>ConnectorStateCheckBox</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+    <sender>qSlicerKinectTrackingModuleWidget</sender>
+    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+    <receiver>NodeSelector</receiver>
+    <slot>setMRMLScene(vtkMRMLScene*)</slot>
+    <hints>
+    <hint type="sourcelabel">
+    <x>248</x>
+    <y>1</y>
+    </hint>
+    <hint type="destinationlabel">
+    <x>230</x>
+    <y>19</y>
+    </hint>
+    </hints>
+  </connection>
+ </connections>
 </ui>

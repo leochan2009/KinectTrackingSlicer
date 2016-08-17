@@ -65,7 +65,6 @@
 
 #include "Tracking.h"
 
-typedef pcl::PointXYZRGB PointT;
 pcl::PointCloud<PointT>::Ptr cloud_cylinder_total (new pcl::PointCloud<PointT> ());
 vtkSmartPointer<vtkVertexGlyphFilter> vertexFilter2(vtkSmartPointer<vtkVertexGlyphFilter>::New());
 vtkSmartPointer<vtkUnsignedCharArray> colorsProcessed(vtkSmartPointer<vtkUnsignedCharArray>::New());
@@ -77,7 +76,6 @@ typedef PointT RefPointType;
 typedef pcl::tracking::ParticleXYZRPY ParticleT;
 typedef pcl::tracking::ParticleFilterTracker<RefPointType, ParticleT> ParticleFilter;
 typedef PointT RefPointType;
-pcl::PointCloud<PointT>::Ptr target_cloud (new pcl::PointCloud<PointT>);
 CloudPtr cloud_pass_;
 CloudPtr cloud_pass_downsampled_;
 boost::mutex mtx_;
@@ -90,26 +88,8 @@ void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_si
   grid.setInputCloud (cloud);
   grid.filter (result);
 }
-
-void trackingInitialization(const std::string targetFileName)
+void trackingInitialization(pcl::PointCloud<PointT>::Ptr target_cloud)
 {
-  if(strncmp(&targetFileName.c_str()[targetFileName.size()-3], "ply",3)==0)
-  {
-    pcl::PLYReader reader;
-    reader.read (targetFileName, *target_cloud);
-    std::cerr << "PointCloud has: " << target_cloud->points.size () << " data points." << std::endl;
-  }
-  else if(strncmp(&targetFileName.c_str()[targetFileName.size()-3], "STL",3)==0||strncmp(&targetFileName.c_str()[targetFileName.size()-3], "stl",3)==0)
-  {
-    pcl::PolygonMesh mesh;
-    pcl::io::loadPolygonFileSTL (targetFileName, mesh);
-    pcl::fromPCLPointCloud2(mesh.cloud, *target_cloud);
-  }
-  else
-  {
-    pcl::PCDReader reader;
-    reader.read (targetFileName, *target_cloud);
-  }
   Eigen::Vector4f center;
   pcl::compute3DCentroid<RefPointType> (*target_cloud, center);
   pcl::PointCloud<PointT>::Ptr target_cloud_half (new pcl::PointCloud<PointT>);
@@ -206,7 +186,36 @@ void trackingInitialization(const std::string targetFileName)
   //set reference model and trans
   tracker_->setReferenceCloud (transed_ref_downsampled);
   tracker_->setTrans (trans);
-  
+}
+
+void trackingInitializationWithName(const std::string targetFileName)
+{
+  pcl::PointCloud<PointT>::Ptr target_cloud (new pcl::PointCloud<PointT>);
+  if(strncmp(&targetFileName.c_str()[targetFileName.size()-3], "ply",3)==0)
+  {
+    pcl::PLYReader reader;
+    reader.read (targetFileName, *target_cloud);
+    std::cerr << "PointCloud has: " << target_cloud->points.size () << " data points." << std::endl;
+  }
+  else if(strncmp(&targetFileName.c_str()[targetFileName.size()-3], "STL",3)==0||strncmp(&targetFileName.c_str()[targetFileName.size()-3], "stl",3)==0)
+  {
+    pcl::PolygonMesh mesh;
+    pcl::io::loadPolygonFileSTL (targetFileName, mesh);
+    pcl::fromPCLPointCloud2(mesh.cloud, *target_cloud);
+  }
+  else
+  {
+    pcl::PCDReader reader;
+    reader.read (targetFileName, *target_cloud);
+  }
+  trackingInitialization(target_cloud);
+}
+
+void trackingInitializationPLY(vtkSmartPointer<vtkPolyData> polyData)
+{
+  pcl::PointCloud<PointT>::Ptr target_cloud (new pcl::PointCloud<PointT>);
+  pcl::io::vtkPolyDataToPointCloud(polyData.GetPointer(), *target_cloud);
+  trackingInitialization(target_cloud);
 }
 
 //Filter along a specified dimension

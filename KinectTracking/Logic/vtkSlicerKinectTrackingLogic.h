@@ -118,6 +118,8 @@ public:
   
   vtkSmartPointer<vtkPolyData> polyData;
   
+  void ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData);
+  
 protected:
   unsigned char * DepthFrame;
   unsigned char * RGBFrame;

@@ -67,12 +67,14 @@ public:
   
   void startVideoTransmission(bool value);
   
+  void UpdateTargetModel(vtkMRMLNode* selectedNode);
+  
   void startCurrentIGTLConnector(bool enabled);
   
   /// Internal function to update the IGTLConnector node based on the property widget
   void updateIGTLConnectorNode();
   
-  void updateTargetModel(vtkObject* sceneObject, vtkObject* nodeObject);
+  void AddingTargetModel(vtkObject* sceneObject, vtkObject* nodeObject);
   
   
 protected:

@@ -113,7 +113,8 @@ qSlicerKinectTrackingModuleWidget::qSlicerKinectTrackingModuleWidget(QWidget* _p
                    this, SLOT(startCurrentIGTLConnector(bool)));
   QObject::connect(d->StartVideoCheckBox, SIGNAL(toggled(bool)),
                    this, SLOT(startVideoTransmission(bool)));
-  
+  QObject::connect(d->NodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+                   this, SLOT(UpdateTargetModel(vtkMRMLNode*)));
   qSlicerApplication *  app = qSlicerApplication::application();
   vtkRenderer* activeRenderer = app->layoutManager()->activeThreeDRenderer();
   d->PolyDataRenderer = activeRenderer;
@@ -154,7 +155,7 @@ void qSlicerKinectTrackingModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     d->converter = vtkIGTLToMRMLDepthVideo::New();
     d->converter->SetIGTLName("ColoredDepth");
     d->IGTLConnectorNode->RegisterMessageConverter(d->converter);
-    qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( updateTargetModel(vtkObject*,vtkObject*) ) );
+    qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingTargetModel(vtkObject*,vtkObject*) ) );
     if (d->IGTLConnectorNode)
     {
       // If the timer is not active
@@ -168,7 +169,7 @@ void qSlicerKinectTrackingModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 
 
 
-void qSlicerKinectTrackingModuleWidget::updateTargetModel(vtkObject* sceneObject, vtkObject* nodeObject)
+void qSlicerKinectTrackingModuleWidget::AddingTargetModel(vtkObject* sceneObject, vtkObject* nodeObject)
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
   vtkMRMLScene* scene = vtkMRMLScene::SafeDownCast(sceneObject);
@@ -181,10 +182,24 @@ void qSlicerKinectTrackingModuleWidget::updateTargetModel(vtkObject* sceneObject
   vtkMRMLModelNode* node = vtkMRMLModelNode::SafeDownCast(nodeObject);
   if (node)
   {
-    //vtkMRMLModelNode::SafeDownCast(this->mrmlScene()->GetNodeIDByClass(0, "vtkMRMLModelNode"));
-    std::string temp = node->GetID();
-    d->NodeSelector->setCurrentNodeID(node->GetID());
-    //node->Delete();
+    vtkMRMLModelNode* nodePre = vtkMRMLModelNode::SafeDownCast(d->NodeSelector->currentNode());
+    if(nodePre)
+    {
+      nodePre->SetDisplayVisibility(false);
+    }
+    d->NodeSelector->setCurrentNode(node);
+  }
+}
+
+
+
+void qSlicerKinectTrackingModuleWidget::UpdateTargetModel(vtkMRMLNode* selectedNode)
+{
+  Q_D(qSlicerKinectTrackingModuleWidget);
+  vtkMRMLModelNode* node = vtkMRMLModelNode::SafeDownCast(selectedNode);
+  if (node && node->GetPolyData())
+  {
+    vtkSlicerKinectTrackingLogic::SafeDownCast(d->logic())->ResetTargetModel(node->GetPolyData());
   }
 }
 

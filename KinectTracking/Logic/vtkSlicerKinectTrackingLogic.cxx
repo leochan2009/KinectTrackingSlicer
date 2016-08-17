@@ -187,6 +187,7 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::ConvertDepthToPoints(
   return polyData;;
 }
 
+
 vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
 {
   const std::string targetFileName = "/Users/longquanchen/Desktop/Github/TrackingSample/build/Head/SkinRotatedHalf.pcd";
@@ -200,7 +201,7 @@ vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
   vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
   cloud = vtkSmartPointer<vtkPoints>::New();
   RegisterMessageConverter(this->PolyConverter);
-  trackingInitialization(targetFileName);
+  trackingInitializationWithName(targetFileName);
   pcl::PCDReader reader;
   pcl::PointCloud<pcl::PointXYZRGB >::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
   reader.read (targetFileName, *cloud);
@@ -219,6 +220,11 @@ vtkSlicerKinectTrackingLogic::~vtkSlicerKinectTrackingLogic()
     this->PolyConverter->Delete();
   }
 
+}
+
+void vtkSlicerKinectTrackingLogic::ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData)
+{
+  trackingInitializationPLY(targetPolyData);
 }
 
 //----------------------------------------------------------------------------
