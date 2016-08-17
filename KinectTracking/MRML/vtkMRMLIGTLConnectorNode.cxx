@@ -105,8 +105,7 @@ vtkMRMLIGTLConnectorNode::vtkMRMLIGTLConnectorNode()
   this->IncomingDeviceIDSet.clear();
   this->OutgoingDeviceIDSet.clear();
   this->UnspecifiedDeviceIDSet.clear();
-  
-  this->MessageConverterList = MessageConverterListType();
+
   this->MessageConverterList.clear();
   this->IGTLNameToConverterMap.clear();
   this->MRMLIDToConverterMap.clear();

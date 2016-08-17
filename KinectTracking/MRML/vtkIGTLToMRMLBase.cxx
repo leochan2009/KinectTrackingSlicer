@@ -39,31 +39,31 @@ public:
   vtkIGTLToMRMLBasePrivate();
   ~vtkIGTLToMRMLBasePrivate();
 
-  void SetKinectTrackingLogic(vtkSlicerKinectTrackingLogic* logic);
-  vtkSlicerKinectTrackingLogic* GetKinectTrackingLogic();
+  void SetConnectAndDisplayLogic(vtkSlicerConnectAndDisplayLogic* logic);
+  vtkSlicerConnectAndDisplayLogic* GetConnectAndDisplayLogic();
 
 protected:
-  vtkSlicerKinectTrackingLogic* KinectTrackingLogic;
+  vtkSlicerConnectAndDisplayLogic* ConnectAndDisplayLogic;
 };
 
 vtkIGTLToMRMLBasePrivate::vtkIGTLToMRMLBasePrivate()
 {
-  this->KinectTrackingLogic = NULL;
+  this->ConnectAndDisplayLogic = NULL;
 }
 
 vtkIGTLToMRMLBasePrivate::~vtkIGTLToMRMLBasePrivate()
 {
 }
 
-void vtkIGTLToMRMLBasePrivate::SetKinectTrackingLogic(vtkSlicerKinectTrackingLogic* logic)
+void vtkIGTLToMRMLBasePrivate::SetConnectAndDisplayLogic(vtkSlicerConnectAndDisplayLogic* logic)
 {
-  this->KinectTrackingLogic = logic;
+  this->ConnectAndDisplayLogic = logic;
 }
 
 
-vtkSlicerKinectTrackingLogic* vtkIGTLToMRMLBasePrivate::GetKinectTrackingLogic()
+vtkSlicerConnectAndDisplayLogic* vtkIGTLToMRMLBasePrivate::GetConnectAndDisplayLogic()
 {
-  return this->KinectTrackingLogic;
+  return this->ConnectAndDisplayLogic;
 }
 
 
@@ -91,21 +91,21 @@ void vtkIGTLToMRMLBase::PrintSelf(ostream& os, vtkIndent indent)
 
 
 //---------------------------------------------------------------------------
-void vtkIGTLToMRMLBase::SetKinectTrackingLogic(vtkSlicerKinectTrackingLogic* logic)
+void vtkIGTLToMRMLBase::SetConnectAndDisplayLogic(vtkSlicerConnectAndDisplayLogic* logic)
 {
   if (this->Private)
     {
-    this->Private->SetKinectTrackingLogic(logic);
+    this->Private->SetConnectAndDisplayLogic(logic);
     }
 }
 
 
 //---------------------------------------------------------------------------
-vtkSlicerKinectTrackingLogic* vtkIGTLToMRMLBase::GetKinectTrackingLogic()
+vtkSlicerConnectAndDisplayLogic* vtkIGTLToMRMLBase::GetConnectAndDisplayLogic()
 {
   if (this->Private)
     {
-    return this->Private->GetKinectTrackingLogic();
+    return this->Private->GetConnectAndDisplayLogic();
     }
   else
     {

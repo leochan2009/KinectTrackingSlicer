@@ -1,19 +1,19 @@
 /*==============================================================================
-
-  Program: 3D Slicer
-
-  Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
-
-  See COPYRIGHT.txt
-  or http://www.slicer.org/copyright/copyright.txt for details.
-
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
-
-==============================================================================*/
+ 
+ Program: 3D Slicer
+ 
+ Portions (c) Copyright Brigham and Women's Hospital (BWH) All Rights Reserved.
+ 
+ See COPYRIGHT.txt
+ or http://www.slicer.org/copyright/copyright.txt for details.
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ 
+ ==============================================================================*/
 
 // Qt includes
 #include <QDebug>
@@ -96,22 +96,11 @@ vtkSlicerKinectTrackingLogic * qSlicerKinectTrackingModuleWidgetPrivate::logic()
 
 //-----------------------------------------------------------------------------
 qSlicerKinectTrackingModuleWidget::qSlicerKinectTrackingModuleWidget(QWidget* _parent)
-  : Superclass( _parent )
-  , d_ptr( new qSlicerKinectTrackingModuleWidgetPrivate(*this) )
+: Superclass( _parent )
+, d_ptr( new qSlicerKinectTrackingModuleWidgetPrivate(*this) )
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
-  this->setup();
-}
 
-//-----------------------------------------------------------------------------
-qSlicerKinectTrackingModuleWidget::~qSlicerKinectTrackingModuleWidget()
-{
-}
-
-//-----------------------------------------------------------------------------
-void qSlicerKinectTrackingModuleWidget::setup()
-{
-  Q_D(qSlicerKinectTrackingModuleWidget);
   d->setupUi(this);
   this->Superclass::setup();
   QObject::connect(&d->ImportDataAndEventsTimer, SIGNAL(timeout()),
@@ -124,7 +113,7 @@ void qSlicerKinectTrackingModuleWidget::setup()
                    this, SLOT(startCurrentIGTLConnector(bool)));
   QObject::connect(d->StartVideoCheckBox, SIGNAL(toggled(bool)),
                    this, SLOT(startVideoTransmission(bool)));
-
+  
   qSlicerApplication *  app = qSlicerApplication::application();
   vtkRenderer* activeRenderer = app->layoutManager()->activeThreeDRenderer();
   d->PolyDataRenderer = activeRenderer;
@@ -143,6 +132,11 @@ void qSlicerKinectTrackingModuleWidget::setup()
     d->graphicsView->setFixedSize(d->picWidth, d->picHeight);
   }
 
+}
+
+//-----------------------------------------------------------------------------
+qSlicerKinectTrackingModuleWidget::~qSlicerKinectTrackingModuleWidget()
+{
 }
 
 //-----------------------------------------------------------------------------
@@ -274,7 +268,7 @@ void qSlicerKinectTrackingModuleWidget::startVideoTransmission(bool value)
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
   Q_ASSERT(d->IGTLConnectorNode);
-  if(value)
+  if(d->StartVideoCheckBox->checkState() == Qt::CheckState::Checked)
   {
     if (d->FrameFrequency->text().toInt()>0.0000001 && d->FrameFrequency->text().toInt()<1000000)
     {

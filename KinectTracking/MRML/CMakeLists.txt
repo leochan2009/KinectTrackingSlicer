@@ -2,8 +2,10 @@ project(vtkSlicer${MODULE_NAME}ModuleMRML)
 
 set(KIT "${PROJECT_NAME}")
 
-set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_KINECTTRACKING_MODULE_MRML_EXPORT")
-FIND_LIBRARY(OpenIGTLinkLib OpenIGTLink /Users/longquanchen/Desktop/Github/Slicer-build/OpenIGTLink-build/bin/Debug)
+set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME}_MODULE_MRML_EXPORT")
+
+message(${KIT}_EXPORT_DIRECTIVE)
+FIND_LIBRARY(OpenIGTLinkLib OpenIGTLink /Users/longquanchen/Desktop/Github/Slicer-build/OpenIGTLink-build/bin)
 FIND_LIBRARY(OpenH264Lib openh264 /Users/longquanchen/Desktop/Github/OpenIGTLink-xcodeBuild/Testing/OpenH264)
 FIND_LIBRARY(lib openh264 /Users/longquanchen/Desktop/Github/OpenIGTLink-xcodeBuild/Testing/OpenH264)
 FIND_LIBRARY(AVCODEC avcodec /Users/longquanchen/Downloads/libav-10.7/libavcodec)
@@ -17,8 +19,10 @@ set(${KIT}_INCLUDE_DIRECTORIES
   ${H264Directory}
   "/usr/local/include/libiomp"
   "/Users/longquanchen/Downloads/libav-10.7/"
+#"/Users/longquanchen/Downloads/libav-10.7/libavcodec"
+#"/Users/longquanchen/Downloads/libav-10.7/libavutil"
   )
-
+  
 set(${KIT}_SRCS
   vtkIGTLCircularBuffer.cxx
 	vtkIGTLCircularBuffer.h
@@ -42,7 +46,6 @@ set(${KIT}_TARGET_LIBRARIES
   SlicerBaseLogic
   vtkSlicerAnnotationsModuleMRML
   vtkSlicerMarkupsModuleMRML
-  iomp5
   ${AVCODEC}
   ${AVUTIL}
   )

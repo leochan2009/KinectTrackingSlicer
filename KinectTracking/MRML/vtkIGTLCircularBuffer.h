@@ -21,6 +21,7 @@
 // OpenIGTLink includes
 #include <igtlMessageBase.h>
 
+// OpenIGTLinkIF MRML includes
 #include "vtkSlicerKinectTrackingModuleMRMLExport.h"
 
 // STD includes
@@ -30,7 +31,7 @@
 
 class vtkMutexLock;
 
-class VTK_SLICER_KINECTTRACKING_MODULE_MRML_EXPORT vtkIGTLCircularBuffer : public vtkObject
+class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkIGTLCircularBuffer : public vtkObject
 {
  public:
   static vtkIGTLCircularBuffer *New();

@@ -49,7 +49,7 @@ namespace Connector{
   int64_t getTime();
 }
 
-class VTK_SLICER_KINECTTRACKING_MODULE_MRML_EXPORT vtkMRMLIGTLConnectorNode : public vtkMRMLNode
+class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkMRMLIGTLConnectorNode : public vtkMRMLNode
 {
 
  public:

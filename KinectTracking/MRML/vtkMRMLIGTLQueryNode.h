@@ -30,7 +30,7 @@
 
 class vtkMRMLIGTLConnectorNode;
 
-class VTK_SLICER_KINECTTRACKING_MODULE_MRML_EXPORT vtkMRMLIGTLQueryNode : public vtkMRMLNode
+class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkMRMLIGTLQueryNode : public vtkMRMLNode
 {
  public:
 

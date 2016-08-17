@@ -34,10 +34,10 @@
 #include <string>
 
 class vtkMRMLIGTLQueryNode;
-class vtkSlicerKinectTrackingLogic;
+class vtkSlicerConnectAndDisplayLogic;
 class vtkIGTLToMRMLBasePrivate;
 
-class VTK_SLICER_KINECTTRACKING_MODULE_MRML_EXPORT vtkIGTLToMRMLBase : public vtkObject
+class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkIGTLToMRMLBase : public vtkObject
 {
 
  public:
@@ -110,8 +110,8 @@ class VTK_SLICER_KINECTTRACKING_MODULE_MRML_EXPORT vtkIGTLToMRMLBase : public vt
   
 
   // Set/Get pointer to OpenIGTlinkIFLogic 
-  void SetKinectTrackingLogic(vtkSlicerKinectTrackingLogic* logic);
-  vtkSlicerKinectTrackingLogic* GetKinectTrackingLogic();
+  void SetConnectAndDisplayLogic(vtkSlicerConnectAndDisplayLogic* logic);
+  vtkSlicerConnectAndDisplayLogic* GetConnectAndDisplayLogic();
 
   // Visualization
   // If an MRML node for this converter type can be visualized,

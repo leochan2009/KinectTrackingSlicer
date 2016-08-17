@@ -32,7 +32,7 @@
 class ISVCDecoder;
 class AVCodecContext;
 
-class VTK_SLICER_KINECTTRACKING_MODULE_MRML_EXPORT vtkIGTLToMRMLDepthVideo : public vtkIGTLToMRMLBase
+class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkIGTLToMRMLDepthVideo : public vtkIGTLToMRMLBase
 {
  public:
 
