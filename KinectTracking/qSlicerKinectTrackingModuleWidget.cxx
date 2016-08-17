@@ -274,7 +274,7 @@ void qSlicerKinectTrackingModuleWidget::startVideoTransmission(bool value)
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
   Q_ASSERT(d->IGTLConnectorNode);
-  if(value == Qt::CheckState::Checked)
+  if(value)
   {
     if (d->FrameFrequency->text().toInt()>0.0000001 && d->FrameFrequency->text().toInt()<1000000)
     {
