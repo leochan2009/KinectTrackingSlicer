@@ -113,8 +113,7 @@ qSlicerKinectTrackingModuleWidget::qSlicerKinectTrackingModuleWidget(QWidget* _p
                    this, SLOT(startCurrentIGTLConnector(bool)));
   QObject::connect(d->StartVideoCheckBox, SIGNAL(toggled(bool)),
                    this, SLOT(startVideoTransmission(bool)));
-  QObject::connect(d->NodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
-                   this, SLOT(UpdateTargetModel(vtkMRMLNode*)));
+  QObject::connect(d->NodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(SelectModel(vtkMRMLNode*)));
   qSlicerApplication *  app = qSlicerApplication::application();
   vtkRenderer* activeRenderer = app->layoutManager()->activeThreeDRenderer();
   d->PolyDataRenderer = activeRenderer;
@@ -188,15 +187,19 @@ void qSlicerKinectTrackingModuleWidget::AddingTargetModel(vtkObject* sceneObject
       nodePre->SetDisplayVisibility(false);
     }
     d->NodeSelector->setCurrentNode(node);
+    qvtkReconnect( node, vtkMRMLModelNode::PolyDataModifiedEvent, this, SLOT( UpdateTargetModel(vtkObject*,vtkObject*) ) );
   }
 }
 
+void qSlicerKinectTrackingModuleWidget::SelectModel(vtkMRMLNode* node)
+{
+  this->UpdateTargetModel(this->mrmlScene(), node);
+}
 
-
-void qSlicerKinectTrackingModuleWidget::UpdateTargetModel(vtkMRMLNode* selectedNode)
+void qSlicerKinectTrackingModuleWidget::UpdateTargetModel(vtkObject* sceneObject, vtkObject* nodeObject)
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
-  vtkMRMLModelNode* node = vtkMRMLModelNode::SafeDownCast(selectedNode);
+  vtkMRMLModelNode* node = vtkMRMLModelNode::SafeDownCast(nodeObject);
   if (node && node->GetPolyData())
   {
     vtkSlicerKinectTrackingLogic::SafeDownCast(d->logic())->ResetTargetModel(node->GetPolyData());

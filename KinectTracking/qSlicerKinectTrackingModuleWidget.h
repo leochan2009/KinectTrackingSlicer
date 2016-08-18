@@ -67,7 +67,7 @@ public:
   
   void startVideoTransmission(bool value);
   
-  void UpdateTargetModel(vtkMRMLNode* selectedNode);
+  void UpdateTargetModel(vtkObject* sceneObject, vtkObject* nodeObject);
   
   void startCurrentIGTLConnector(bool enabled);
   
@@ -76,7 +76,7 @@ public:
   
   void AddingTargetModel(vtkObject* sceneObject, vtkObject* nodeObject);
   
-  
+  void SelectModel(vtkMRMLNode* node);
 protected:
   QScopedPointer<qSlicerKinectTrackingModuleWidgetPrivate> d_ptr;
   
