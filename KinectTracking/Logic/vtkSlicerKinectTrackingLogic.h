@@ -49,7 +49,10 @@
 #include <vtkVector.h>
 #include <vtkVertexGlyphFilter.h>
 #include <vtkUnsignedCharArray.h>
+
+//Local includes
 #include "Tracking.h"
+#include "SurfaceRendering.h"
 
 #include "vtkSlicerKinectTrackingModuleLogicExport.h"
 
@@ -118,7 +121,12 @@ public:
   
   vtkSmartPointer<vtkPolyData> polyData;
   
+  vtkSmartPointer<vtkImageData> imageData;
+  
   void ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData);
+  
+  bool EnableTracking;
+  bool SurfaceRendering;
   
 protected:
   unsigned char * DepthFrame;

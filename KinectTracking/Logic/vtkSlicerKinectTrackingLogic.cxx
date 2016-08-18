@@ -192,6 +192,8 @@ vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
 {
   const std::string targetFileName = "/Users/longquanchen/Desktop/Github/TrackingSample/build/Head/SkinRotatedHalf.pcd";
   this->Initialized   = 0;
+  this->SurfaceRendering = true;
+  this->EnableTracking = false;
   this->MessageConverterList.clear();
   this->polyData = vtkSmartPointer<vtkPolyData>::New();
   // register default data types
@@ -310,7 +312,15 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::CallConnectorTimerHan
   if (DepthFrame && RGBFrame && DepthIndex)
   {
     int64_t conversionTime = Connector::getTime();
-    TrackCylindarObject(ConvertDepthToPoints((unsigned char*)DepthFrame,DepthIndex, RGBFrame, 512, 424));
+    ConvertDepthToPoints((unsigned char*)DepthFrame,DepthIndex, RGBFrame, 512, 424);
+    if (this->EnableTracking)
+    {
+      TrackCylindarObject(this->polyData);
+    }
+    if (this->SurfaceRendering)
+    {
+      KinectDataRendering::SurfaceRendering(this->polyData, this->imageData);
+    }
     return this->polyData;
     std::cerr<<"Depth Image conversion Time: "<<(Connector::getTime()-conversionTime)/1e6 << std::endl;
     

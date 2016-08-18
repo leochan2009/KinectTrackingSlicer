@@ -202,6 +202,14 @@ void qSlicerKinectTrackingModuleWidget::UpdateTargetModel(vtkObject* sceneObject
   vtkMRMLModelNode* node = vtkMRMLModelNode::SafeDownCast(nodeObject);
   if (node && node->GetPolyData())
   {
+    QList<vtkMRMLNode*> nodes = d->NodeSelector->nodes();
+    for (QList<vtkMRMLNode*>::iterator qNodeIter = nodes.begin(); qNodeIter< nodes.end(); qNodeIter ++)
+    {
+      vtkMRMLModelNode* qNodeObject = vtkMRMLModelNode::SafeDownCast(*(qNodeIter));
+      if(qNodeObject)
+        qNodeObject->SetDisplayVisibility(false);
+    }
+    node->SetDisplayVisibility(true);
     vtkSlicerKinectTrackingLogic::SafeDownCast(d->logic())->ResetTargetModel(node->GetPolyData());
   }
 }
