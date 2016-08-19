@@ -40,6 +40,7 @@
 class qSlicerKinectTrackingModuleWidgetPrivate;
 class vtkMRMLNode;
 class vtkMRMLIGTLConnectorNode;
+class vtkMRMLScalarVolumeNode;
 
 /// \ingroup Slicer_QtModules_ExtensionTemplate
 class Q_SLICER_QTMODULES_KINECTTRACKING_EXPORT qSlicerKinectTrackingModuleWidget :
@@ -76,7 +77,12 @@ public:
   
   void AddingTargetModel(vtkObject* sceneObject, vtkObject* nodeObject);
   
+  void AddingImage(vtkObject* sceneObject, vtkObject* nodeObject);
+  
   void SelectModel(vtkMRMLNode* node);
+  
+  void SelectImageModel(vtkMRMLNode* node);
+  
 protected:
   QScopedPointer<qSlicerKinectTrackingModuleWidgetPrivate> d_ptr;
   

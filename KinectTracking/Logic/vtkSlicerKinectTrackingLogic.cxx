@@ -22,7 +22,7 @@
 #include <vtkMRMLScene.h>
 #include "vtkMRMLIGTLQueryNode.h"
 #include "vtkMRMLIGTLConnectorNode.h"
-
+#include <vtkMRMLLinearTransformNode.h>
 // VTK includes
 #include <vtkIntArray.h>
 #include <vtkNew.h>
@@ -133,7 +133,8 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::ConvertDepthToPoints(
           pt[2] = pixelValue + (bufIndex[depth_idx]-1)*256 + 500;
           pt[0] = static_cast<float> (-u) * pt[2] * constant;
           pt[1] = static_cast<float> (-v) * pt[2] * constant;
-          cloud->InsertNextPoint(pt[0],pt[1],pt[2]);
+          double shift[3] = {0,0,900};
+          cloud->InsertNextPoint(pt[0]-shift[0],pt[1]-shift[1],pt[2]-shift[2]);
           unsigned char color[3] = {bufColor[3*depth_idx],bufColor[3*depth_idx+1],bufColor[3*depth_idx+2]};
           colors->InsertNextTypedTuple(color);
           pointNum ++;
@@ -187,13 +188,17 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::ConvertDepthToPoints(
   return polyData;;
 }
 
+void vtkSlicerKinectTrackingLogic::SetImage(vtkSmartPointer<vtkImageData> imageData)
+{
+  this->surfaceRender->setImageData(imageData);
+}
 
 vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
 {
-  const std::string targetFileName = "/Users/longquanchen/Desktop/Github/TrackingSample/build/Head/SkinRotatedHalf.pcd";
+  const std::string targetFileName = "/Users/longquanchen/Desktop/Github/KinectTracking/StarbuckCup.ply";
   this->Initialized   = 0;
   this->SurfaceRendering = true;
-  this->EnableTracking = false;
+  this->EnableTracking = true;
   this->MessageConverterList.clear();
   this->polyData = vtkSmartPointer<vtkPolyData>::New();
   // register default data types
@@ -209,7 +214,7 @@ vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
   reader.read (targetFileName, *cloud);
   std::cerr << "PointCloud has: " << cloud->points.size () << " data points." << std::endl;
   pcl::io::pointCloudTovtkPolyData<pcl::PointXYZRGB >(*cloud, polyData.GetPointer());
-
+  surfaceRender = new KinectDataRendering::SurfaceRender();
   //this->LocatorTransformNode = NULL;
 }
 
@@ -316,10 +321,19 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::CallConnectorTimerHan
     if (this->EnableTracking)
     {
       TrackCylindarObject(this->polyData);
+      vtkMRMLLinearTransformNode* transformNode = this->GetMRMLScene()->GetNodeByID('vtkMRMLLinearTransformNode1');
+      vtkMatrix4x4* transformMatrix = new vtkMatrix4x4();
+      for(int i = 0; i < 4;i++)
+      {
+        for(int j =0; j<3; j++)
+        {
+        }
+      }
     }
     if (this->SurfaceRendering)
     {
-      KinectDataRendering::SurfaceRendering(this->polyData, this->imageData);
+      surfaceRender->setPolyData(this->polyData);
+      surfaceRender->Rendering();
     }
     return this->polyData;
     std::cerr<<"Depth Image conversion Time: "<<(Connector::getTime()-conversionTime)/1e6 << std::endl;

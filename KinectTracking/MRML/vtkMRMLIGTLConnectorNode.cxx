@@ -1098,11 +1098,10 @@ uint8_t* vtkMRMLIGTLConnectorNode::ImportDataFromCircularBuffer()
         if (nCol == 0)
           {
             // Call the advanced creation call first to see if the requested converter needs the message itself
-            vtkMRMLNode* node = converter->CreateNewNodeWithMessage(this->GetScene(), buffer->GetDeviceName(), buffer);
-            NodeInfoType* nodeInfo = RegisterIncomingMRMLNode(node);
-            node->DisableModifiedEventOn();
-            int64_t startTime = Connector::getTime();
-            //this->conversionFinish = false;
+            //vtkMRMLNode* node = converter->CreateNewNodeWithMessage(this->GetScene(), buffer->GetDeviceName(), buffer);
+            //NodeInfoType* nodeInfo = RegisterIncomingMRMLNode(node);
+            //node->DisableModifiedEventOn();
+            //int64_t startTime = Connector::getTime();
             if(strcmp(buffer->GetDeviceName(), "DepthFrame") == 0)
             {
               DepthFrame = converter->IGTLToMRML(buffer);
@@ -1115,7 +1114,7 @@ uint8_t* vtkMRMLIGTLConnectorNode::ImportDataFromCircularBuffer()
             {
               RGBFrame = converter->IGTLToMRML(buffer);
             }
-            else if(strcmp(buffer->GetDeviceName(), "KinectRGBD") == 0)
+            /*else if(strcmp(buffer->GetDeviceName(), "KinectRGBD") == 0)
             {
               PolyData = converter->IGTLToMRML(buffer, node);
             }
@@ -1130,7 +1129,7 @@ uint8_t* vtkMRMLIGTLConnectorNode::ImportDataFromCircularBuffer()
             node->InvokePendingModifiedEvent();
             updatedNode = node;
             this->InvokeEvent(vtkMRMLIGTLConnectorNode::NewDeviceEvent, node);
-            this->InvokeEvent(vtkMRMLIGTLConnectorNode::DeviceModifiedEvent, node);
+            this->InvokeEvent(vtkMRMLIGTLConnectorNode::DeviceModifiedEvent, node);*/
             this->conversionFinish = true;
             this->conditionVar->Signal();
           }

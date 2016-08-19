@@ -26,6 +26,8 @@
 #include "qSlicerApplication.h"
 #include "qSlicerLayoutManager.h"
 #include "qSlicerWidget.h"
+#include "qMRMLSliceWidget.h"
+#include "qMRMLSliceControllerWidget.h"
 
 // Logic Include
 #include "vtkSlicerKinectTrackingLogic.h"
@@ -36,6 +38,8 @@
 #include "vtkMRMLIGTLQueryNode.h"
 #include <qMRMLNodeFactory.h>
 #include <vtkMRMLModelNode.h>
+#include <vtkMRMLScalarVolumeNode.h>
+#include <vtkMRMLSliceCompositeNode.h>
 
 //VTK include
 #include <vtkNew.h>
@@ -67,6 +71,7 @@ public:
   vtkSmartPointer<vtkActor> PolyDataActor;
   vtkSmartPointer<vtkPolyData> polydata;
   vtkSmartPointer<vtkPolyDataMapper> mapper;
+  vtkSmartPointer<vtkMRMLSliceCompositeNode> RedSliceCompositionNode;
   uint8_t * RGBFrame;
   int picWidth = 512;
   int picHeight = 424;
@@ -115,6 +120,13 @@ qSlicerKinectTrackingModuleWidget::qSlicerKinectTrackingModuleWidget(QWidget* _p
                    this, SLOT(startVideoTransmission(bool)));
   QObject::connect(d->NodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(SelectModel(vtkMRMLNode*)));
   qSlicerApplication *  app = qSlicerApplication::application();
+  qMRMLSliceWidget* sliceWidget = app->layoutManager()->sliceWidget("Red");
+  qMRMLSliceControllerWidget* sliceControllerWidget = sliceWidget->sliceController();
+  qMRMLNodeComboBox* comboBox =
+  qobject_cast<qMRMLNodeComboBox*>(sliceControllerWidget->findChild<qMRMLNodeComboBox*>("BackgroundComboBox"));
+  QObject::connect(comboBox, SIGNAL(currentNodeChanged(vtkMRMLNode*)),
+                      SLOT(SelectImageModel(vtkMRMLNode*)));
+  
   vtkRenderer* activeRenderer = app->layoutManager()->activeThreeDRenderer();
   d->PolyDataRenderer = activeRenderer;
   vtkRenderWindow* activeRenderWindow = activeRenderer->GetRenderWindow();
@@ -155,6 +167,8 @@ void qSlicerKinectTrackingModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     d->converter->SetIGTLName("ColoredDepth");
     d->IGTLConnectorNode->RegisterMessageConverter(d->converter);
     qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingTargetModel(vtkObject*,vtkObject*) ) );
+    qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingImage(vtkObject*,vtkObject*) ) );
+    d->RedSliceCompositionNode = vtkMRMLSliceCompositeNode::SafeDownCast(this->mrmlScene()->GetNodeByID("vtkMRMLSliceCompositeNodeRed"));
     if (d->IGTLConnectorNode)
     {
       // If the timer is not active
@@ -167,12 +181,38 @@ void qSlicerKinectTrackingModuleWidget::setMRMLScene(vtkMRMLScene* scene)
 }
 
 
+void qSlicerKinectTrackingModuleWidget::SelectImageModel(vtkMRMLNode* node)
+{
+  Q_D(qSlicerKinectTrackingModuleWidget);
+  vtkMRMLScalarVolumeNode* localNode = vtkMRMLScalarVolumeNode::SafeDownCast(node);
+  if (localNode)
+    d->logic()->SetImage(localNode->GetImageData());
+}
+
+void qSlicerKinectTrackingModuleWidget::AddingImage(vtkObject* sceneObject, vtkObject* nodeObject)
+{
+  Q_D(qSlicerKinectTrackingModuleWidget);
+  vtkMRMLScene* scene = vtkMRMLScene::SafeDownCast(sceneObject);
+  if (!scene || strcmp(nodeObject->GetClassName(),"vtkMRMLScalarVolumeNode"))
+  {
+    return;
+  }
+  
+  // Connect segment added and removed events to plugin to update subject hierarchy accordingly
+  vtkMRMLScalarVolumeNode* node = vtkMRMLScalarVolumeNode::SafeDownCast(nodeObject);
+  if (node)
+  {
+    d->RedSliceCompositionNode->SetBackgroundVolumeID(node->GetID());
+    SelectImageModel(node);
+  }
+}
+
 
 void qSlicerKinectTrackingModuleWidget::AddingTargetModel(vtkObject* sceneObject, vtkObject* nodeObject)
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
   vtkMRMLScene* scene = vtkMRMLScene::SafeDownCast(sceneObject);
-  if (!scene)
+  if (!scene || strcmp(nodeObject->GetClassName(),"vtkMRMLModelNode"))
   {
     return;
   }
@@ -190,6 +230,7 @@ void qSlicerKinectTrackingModuleWidget::AddingTargetModel(vtkObject* sceneObject
     qvtkReconnect( node, vtkMRMLModelNode::PolyDataModifiedEvent, this, SLOT( UpdateTargetModel(vtkObject*,vtkObject*) ) );
   }
 }
+
 
 void qSlicerKinectTrackingModuleWidget::SelectModel(vtkMRMLNode* node)
 {

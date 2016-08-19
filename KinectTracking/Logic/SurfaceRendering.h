@@ -15,10 +15,31 @@
 #include <vtkCellArray.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkSmartPointer.h>
+#include <Vector>
 #endif
 
 namespace KinectDataRendering {
-
-  void SurfaceRendering(vtkSmartPointer<vtkPolyData> polyData, vtkSmartPointer<vtkImageData> imageData);
-
+  
+  class SurfaceRender {
+  
+  public:
+    SurfaceRender();
+    ~SurfaceRender();
+    
+    vtkSmartPointer<vtkPolyData> _polyData;
+    vtkSmartPointer<vtkImageData> _imageData;
+    vtkSmartPointer<vtkVertexGlyphFilter> vertexFilter;
+    
+    std::vector<int> correspondPos;
+    
+    bool checkPointInRange(double * position);
+    
+    std::vector<double> boundary;
+    
+    void setPolyData(vtkSmartPointer<vtkPolyData> polyData);
+    
+    void setImageData(vtkSmartPointer<vtkImageData> imageData);
+    
+    void Rendering();
+  };
 }

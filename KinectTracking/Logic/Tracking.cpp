@@ -80,6 +80,7 @@ CloudPtr cloud_pass_;
 CloudPtr cloud_pass_downsampled_;
 boost::mutex mtx_;
 boost::shared_ptr<ParticleFilter> tracker_;
+Eigen::Affine3f transformation;
 
 void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
 {
@@ -223,7 +224,7 @@ void filterPassThrough (const CloudConstPtr &cloud, Cloud &result)
 {
   pcl::PassThrough<PointT> pass;
   pass.setFilterFieldName ("z");
-  pass.setFilterLimits (500.0, 3800.0);
+  pass.setFilterLimits (-500, 500.0);
   pass.setKeepOrganized (false);
   pass.setInputCloud (cloud);
   pass.filter (result);
@@ -234,7 +235,7 @@ void
 drawResult ()
 {
   pcl::tracking::ParticleXYZRPY result = tracker_->getResult ();
-  Eigen::Affine3f transformation = tracker_->toEigenMatrix (result);
+  transformation = tracker_->toEigenMatrix (result);
   
   //move close to camera a little for better visualization
   //transformation.translation () += Eigen::Vector3f (0.0f, 0.0f, -0.005f);

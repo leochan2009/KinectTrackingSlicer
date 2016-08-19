@@ -41,6 +41,7 @@
 #include <vtkInteractorStyleSwitch.h>
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkObjectFactory.h>
+#include <vtkUnsignedCharArray.h>
 
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
@@ -64,9 +65,77 @@
 
 #include "SurfaceRendering.h"
 namespace KinectDataRendering {
-  void SurfaceRendering(vtkSmartPointer<vtkPolyData> polyData, vtkSmartPointer<vtkImageData> imageData)
+  
+  SurfaceRender::SurfaceRender()
   {
-    double *pixel = static_cast<double*> (imageData->GetScalarPointer(, , );
+    boundary = std::vector<double>(6);
+    correspondPos = std::vector<int>(3);
+    vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+  }
+  SurfaceRender::~SurfaceRender()
+  {}
+  
+  void SurfaceRender::setPolyData(vtkSmartPointer<vtkPolyData> polyData)
+  {
+    _polyData = polyData;
+  }
+  
+  void SurfaceRender::setImageData(vtkSmartPointer<vtkImageData> imageData)
+  {
+    _imageData = imageData;
+    int* dimension = imageData->GetDimensions();
+    double* spacing = imageData->GetSpacing();
+    boundary[0] = 0;
+    boundary[1] = spacing[0]*dimension[0];
+    boundary[2] = 0;
+    boundary[3] = spacing[1]*dimension[1];
+    boundary[4] = 0;
+    boundary[5] = spacing[2]*dimension[2];
+  }
+  
+  bool SurfaceRender::checkPointInRange(double * position)
+  {
+    if (position[0] > boundary[0] && position[0] < boundary[1] && \
+        position[1] > boundary[2] && position[1] < boundary[3] && \
+        position[2] > boundary[4] && position[2] < boundary[5])
+    {
+      correspondPos[0] = (int)std::floor(position[0]);
+      correspondPos[1] = (int)std::floor(position[1]);
+      correspondPos[2] = (int)std::floor(position[2]);
+      return true;
+    }
+    return false;
+  }
+  
+  void SurfaceRender::Rendering()
+  {
+    if (this->_polyData && this->_imageData)
+    {
+      vtkPoints * points = _polyData->GetPoints();
+      vtkUnsignedCharArray * colors = (vtkUnsignedCharArray * )_polyData->GetPointData()->GetScalars();
+      int temp = _polyData->GetNumberOfPoints();
+      for (int i = 0; i < _polyData->GetNumberOfPoints(); i++)
+      {
+        double* position = points->GetPoint(i);
+        int ijk[3]={0};
+        double pcoords[3]={0.0};
+        if (checkPointInRange(position)/*this->_imageData->ComputeStructuredCoordinates(position, ijk, pcoords)*/)
+        {
+          double *pixel = static_cast<double*> (_imageData->GetScalarPointer(correspondPos[0],correspondPos[1],correspondPos[2]));
+          //points->InsertNextPoint(position[0],position[1],position[2]+1);
+          unsigned char temp = pixel[0];
+          unsigned char color[3] = {temp,0,0};
+          colors->SetTypedTuple(i, color);
+          //colors->InsertNextTypedTuple(color);
+        }
+      }
+      _polyData->SetPoints(points);
+      _polyData->GetPointData()->SetScalars(colors);
+      vertexFilter->SetInputData(_polyData);
+      vertexFilter->Update();
+      _polyData->ShallowCopy(vertexFilter->GetOutput());
+      temp = _polyData->GetNumberOfPoints();
+    }
   }
 }
 

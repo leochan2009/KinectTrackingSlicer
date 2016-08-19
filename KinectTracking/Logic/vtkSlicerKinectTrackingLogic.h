@@ -122,7 +122,7 @@ public:
   vtkSmartPointer<vtkPolyData> polyData;
   
   vtkSmartPointer<vtkImageData> imageData;
-  
+  void SetImage(vtkSmartPointer<vtkImageData> imageData);
   void ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData);
   
   bool EnableTracking;
@@ -133,7 +133,7 @@ protected:
   unsigned char * RGBFrame;
   unsigned char * DepthIndex;
   
-  
+  KinectDataRendering::SurfaceRender * surfaceRender;
   //----------------------------------------------------------------
   // Constructor, destructor etc.
   //----------------------------------------------------------------
