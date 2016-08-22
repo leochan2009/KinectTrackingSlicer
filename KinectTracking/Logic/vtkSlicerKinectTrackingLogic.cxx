@@ -22,7 +22,7 @@
 #include <vtkMRMLScene.h>
 #include "vtkMRMLIGTLQueryNode.h"
 #include "vtkMRMLIGTLConnectorNode.h"
-#include <vtkMRMLLinearTransformNode.h>
+#include <vtkMRMLSliceNode.h>
 // VTK includes
 #include <vtkIntArray.h>
 #include <vtkNew.h>
@@ -188,7 +188,7 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::ConvertDepthToPoints(
   return polyData;;
 }
 
-void vtkSlicerKinectTrackingLogic::SetImage(vtkSmartPointer<vtkImageData> imageData)
+void vtkSlicerKinectTrackingLogic::SetImage(vtkImageData* imageData)
 {
   this->surfaceRender->setImageData(imageData);
 }
@@ -321,14 +321,18 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::CallConnectorTimerHan
     if (this->EnableTracking)
     {
       TrackCylindarObject(this->polyData);
-      vtkMRMLLinearTransformNode* transformNode = this->GetMRMLScene()->GetNodeByID('vtkMRMLLinearTransformNode1');
-      vtkMatrix4x4* transformMatrix = new vtkMatrix4x4();
+      vtkMRMLSliceNode* transformNode = vtkMRMLSliceNode::SafeDownCast(this->GetMRMLScene()->GetNodeByID("vtkMRMLSliceNodeRed"));
+      vtkSmartPointer<vtkMatrix4x4> transformMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
+      Eigen::Affine3f transformationEigen = GetTransform();
       for(int i = 0; i < 4;i++)
       {
-        for(int j =0; j<3; j++)
+        for(int j =0; j<4; j++)
         {
+          transformMatrix->SetElement(i,j, transformationEigen.data()[j*4+i]);
         }
       }
+      transformNode->GetSliceToRAS()->DeepCopy(transformMatrix);
+      transformNode->UpdateMatrices();
     }
     if (this->SurfaceRendering)
     {

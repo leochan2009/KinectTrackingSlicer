@@ -80,7 +80,7 @@ namespace KinectDataRendering {
     _polyData = polyData;
   }
   
-  void SurfaceRender::setImageData(vtkSmartPointer<vtkImageData> imageData)
+  void SurfaceRender::setImageData(vtkImageData* imageData)
   {
     _imageData = imageData;
     int* dimension = imageData->GetDimensions();
@@ -112,29 +112,51 @@ namespace KinectDataRendering {
     if (this->_polyData && this->_imageData)
     {
       vtkPoints * points = _polyData->GetPoints();
-      vtkUnsignedCharArray * colors = (vtkUnsignedCharArray * )_polyData->GetPointData()->GetScalars();
-      int temp = _polyData->GetNumberOfPoints();
-      for (int i = 0; i < _polyData->GetNumberOfPoints(); i++)
+      vtkUnsignedCharArray* colors =(vtkUnsignedCharArray*)_polyData->GetPointData()->GetScalars();
+      int pointNum = points->GetNumberOfPoints();
+      int augmentedNum = 0;
+      for (int i = 0; i < pointNum; i++)
       {
         double* position = points->GetPoint(i);
         int ijk[3]={0};
         double pcoords[3]={0.0};
-        if (checkPointInRange(position)/*this->_imageData->ComputeStructuredCoordinates(position, ijk, pcoords)*/)
+        if (this->_imageData->ComputeStructuredCoordinates(position, ijk, pcoords))
         {
-          double *pixel = static_cast<double*> (_imageData->GetScalarPointer(correspondPos[0],correspondPos[1],correspondPos[2]));
-          //points->InsertNextPoint(position[0],position[1],position[2]+1);
-          unsigned char temp = pixel[0];
-          unsigned char color[3] = {temp,0,0};
-          colors->SetTypedTuple(i, color);
-          //colors->InsertNextTypedTuple(color);
+          double voxelGreyValue = _imageData->GetScalarComponentAsDouble(ijk[0],ijk[1],ijk[2],0);
+          points->InsertNextPoint(position[0],position[1],position[2]+1);
+          unsigned char color[3] = {voxelGreyValue,0,0};
+          colors->InsertNextTypedTuple(color);
+          augmentedNum++;
         }
       }
+      std::vector<int> augmentedNums(10,0);
+      augmentedNums[0] = augmentedNum;
+      int iteration = 0, totalAugmentNum=0;
+      while(iteration<9)
+      {
+        for (int i = 0; i < augmentedNums[iteration]; i++)
+        {
+          double* position = points->GetPoint(pointNum + i + totalAugmentNum);
+          int ijk[3]={0};
+          double pcoords[3]={0.0};
+          if (this->_imageData->ComputeStructuredCoordinates(position, ijk, pcoords))
+          {
+            double voxelGreyValue = _imageData->GetScalarComponentAsDouble(ijk[0],ijk[1],ijk[2],0);
+            points->InsertNextPoint(position[0],position[1],position[2]+1);
+            unsigned char color[3] = {voxelGreyValue,0,0};
+            colors->InsertNextTypedTuple(color);
+            augmentedNums[iteration+1] ++;
+          }
+        }
+        totalAugmentNum += augmentedNums[iteration];
+        iteration++;
+      }
+      
       _polyData->SetPoints(points);
       _polyData->GetPointData()->SetScalars(colors);
       vertexFilter->SetInputData(_polyData);
       vertexFilter->Update();
       _polyData->ShallowCopy(vertexFilter->GetOutput());
-      temp = _polyData->GetNumberOfPoints();
     }
   }
 }

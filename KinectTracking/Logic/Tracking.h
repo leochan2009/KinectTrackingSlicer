@@ -20,10 +20,10 @@
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
-
 typedef pcl::PointXYZRGB PointT;
 
 void TrackCylindarObject(vtkSmartPointer<vtkPolyData> polyData);
 void trackingInitialization(pcl::PointCloud<PointT>::Ptr target_cloud);
 void trackingInitializationWithName(const std::string targetFileName);
 void trackingInitializationPLY(vtkSmartPointer<vtkPolyData> polyData);
+Eigen::Affine3f GetTransform();

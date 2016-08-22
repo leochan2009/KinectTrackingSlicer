@@ -122,7 +122,7 @@ public:
   vtkSmartPointer<vtkPolyData> polyData;
   
   vtkSmartPointer<vtkImageData> imageData;
-  void SetImage(vtkSmartPointer<vtkImageData> imageData);
+  void SetImage(vtkImageData* imageData);
   void ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData);
   
   bool EnableTracking;

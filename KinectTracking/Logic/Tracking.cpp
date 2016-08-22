@@ -65,6 +65,12 @@
 
 #include "Tracking.h"
 
+Eigen::Affine3f transformationEigen;
+Eigen::Affine3f GetTransform()
+{
+  Eigen::Affine3f transformation(transformationEigen);
+  return transformation;
+}
 pcl::PointCloud<PointT>::Ptr cloud_cylinder_total (new pcl::PointCloud<PointT> ());
 vtkSmartPointer<vtkVertexGlyphFilter> vertexFilter2(vtkSmartPointer<vtkVertexGlyphFilter>::New());
 vtkSmartPointer<vtkUnsignedCharArray> colorsProcessed(vtkSmartPointer<vtkUnsignedCharArray>::New());
@@ -80,7 +86,6 @@ CloudPtr cloud_pass_;
 CloudPtr cloud_pass_downsampled_;
 boost::mutex mtx_;
 boost::shared_ptr<ParticleFilter> tracker_;
-Eigen::Affine3f transformation;
 
 void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
 {
@@ -100,7 +105,7 @@ void trackingInitialization(pcl::PointCloud<PointT>::Ptr target_cloud)
     {
       target_cloud_half->push_back(target_cloud->at(i));
     }
-    target_cloud->at(i).data[2] = target_cloud->at(i).data[2] - center[2] + 1400;
+    target_cloud->at(i).data[2] = target_cloud->at(i).data[2] - center[2];
     target_cloud->at(i).data[1] = target_cloud->at(i).data[1] - center[1];
     target_cloud->at(i).data[0] = target_cloud->at(i).data[0] - center[0];
     target_cloud->at(i).r = 255;
@@ -235,13 +240,13 @@ void
 drawResult ()
 {
   pcl::tracking::ParticleXYZRPY result = tracker_->getResult ();
-  transformation = tracker_->toEigenMatrix (result);
+  transformationEigen = tracker_->toEigenMatrix (result);
   
   //move close to camera a little for better visualization
-  //transformation.translation () += Eigen::Vector3f (0.0f, 0.0f, -0.005f);
+  //transformationEigen.translation () += Eigen::Vector3f (0.0f, 0.0f, -0.005f);
   CloudPtr result_cloud (new Cloud ());
   ParticleFilter::PointCloudInConstPtr refCloud = tracker_->getReferenceCloud ();
-  pcl::transformPointCloud<RefPointType> (*(refCloud), *result_cloud, transformation);
+  pcl::transformPointCloud<RefPointType> (*(refCloud), *result_cloud, transformationEigen);
   for(int index = 0; index<result_cloud->size();index++)
   {
     cloudProcessed->InsertNextPoint(result_cloud->at(index).data[0],result_cloud->at(index).data[1],result_cloud->at(index).data[2]);

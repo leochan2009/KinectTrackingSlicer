@@ -38,7 +38,7 @@ namespace KinectDataRendering {
     
     void setPolyData(vtkSmartPointer<vtkPolyData> polyData);
     
-    void setImageData(vtkSmartPointer<vtkImageData> imageData);
+    void setImageData(vtkImageData* imageData);
     
     void Rendering();
   };
