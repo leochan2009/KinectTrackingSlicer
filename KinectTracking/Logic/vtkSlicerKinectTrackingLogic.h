@@ -49,6 +49,7 @@
 #include <vtkVector.h>
 #include <vtkVertexGlyphFilter.h>
 #include <vtkUnsignedCharArray.h>
+#include <vtkReverseSense.h>
 
 //Local includes
 #include "Tracking.h"
@@ -95,7 +96,7 @@ public:
   vtkMRMLIGTLConnectorNode* GetConnector(const char* conID);
   
   // Call timer-driven routines for each connector
-  vtkSmartPointer<vtkPolyData>  CallConnectorTimerHander();
+  void  CallConnectorTimerHander();
   
   int  RegisterMessageConverter(vtkIGTLToMRMLBase* converter);
   int  UnregisterMessageConverter(vtkIGTLToMRMLBase* converter);
@@ -119,12 +120,12 @@ public:
   //void GetDeviceTypes(std::vector<char*> &list);
   unsigned char * GetFrame(){return RGBFrame;};
   
-  vtkSmartPointer<vtkPolyData> polyData;
   
   vtkSmartPointer<vtkImageData> imageData;
   void SetImage(vtkImageData* imageData);
   void ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData);
-  
+  vtkSmartPointer<vtkPolyData> GetPolyData(){return polyData;};
+   vtkSmartPointer<vtkPolyData> GetPolyDataOverlay(){return polyDataOverlay;};
   bool EnableTracking;
   bool SurfaceRendering;
   
@@ -132,6 +133,10 @@ protected:
   unsigned char * DepthFrame;
   unsigned char * RGBFrame;
   unsigned char * DepthIndex;
+  
+  vtkSmartPointer<vtkPolyData> polyData;
+  
+  vtkSmartPointer<vtkPolyData> polyDataOverlay;
   
   KinectDataRendering::SurfaceRender * surfaceRender;
   //----------------------------------------------------------------

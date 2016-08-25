@@ -42,6 +42,14 @@
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkObjectFactory.h>
 #include <vtkUnsignedCharArray.h>
+#include <vtkDelaunay2D.h>
+#include <vtkDataSetMapper.h>
+#include <vtkSurfaceReconstructionFilter.h>
+#include <vtkReverseSense.h>
+#include <vtkContourFilter.h>
+#include <vtkCleanPolyData.h>
+#include <vtkAppendPolyData.h>
+#include <vtkSmoothPolyDataFilter.h>
 
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/passthrough.h>
@@ -71,6 +79,8 @@ namespace KinectDataRendering {
     boundary = std::vector<double>(6);
     correspondPos = std::vector<int>(3);
     vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
+    _surfRecon = vtkSmartPointer<vtkReverseSense>::New();
+    _threshold = 10;
   }
   SurfaceRender::~SurfaceRender()
   {}
@@ -79,6 +89,12 @@ namespace KinectDataRendering {
   {
     _polyData = polyData;
   }
+  
+  vtkSmartPointer<vtkPolyData> SurfaceRender::getPolyDataOverlay()
+  {
+    return _polyDataOverlay;
+  }
+
   
   void SurfaceRender::setImageData(vtkImageData* imageData)
   {
@@ -107,14 +123,26 @@ namespace KinectDataRendering {
     return false;
   }
   
+  bool SurfaceRender:: setThreshold(int threshold)
+  {
+    this->_threshold = threshold;
+    return true;
+  }
+  
   void SurfaceRender::Rendering()
   {
     if (this->_polyData && this->_imageData)
     {
       vtkPoints * points = _polyData->GetPoints();
+      vtkSmartPointer<vtkPoints> pointsOverlay = vtkSmartPointer<vtkPoints>::New();
+      vtkSmartPointer<vtkUnsignedCharArray> colorsOverlay = vtkSmartPointer<vtkUnsignedCharArray>::New();
+      colorsOverlay->SetName("Color");
+      colorsOverlay->SetNumberOfComponents(3);
+
       vtkUnsignedCharArray* colors =(vtkUnsignedCharArray*)_polyData->GetPointData()->GetScalars();
       int pointNum = points->GetNumberOfPoints();
       int augmentedNum = 0;
+      int threshold = this-> _threshold;
       for (int i = 0; i < pointNum; i++)
       {
         double* position = points->GetPoint(i);
@@ -123,40 +151,64 @@ namespace KinectDataRendering {
         if (this->_imageData->ComputeStructuredCoordinates(position, ijk, pcoords))
         {
           double voxelGreyValue = _imageData->GetScalarComponentAsDouble(ijk[0],ijk[1],ijk[2],0);
-          points->InsertNextPoint(position[0],position[1],position[2]+1);
-          unsigned char color[3] = {voxelGreyValue,0,0};
-          colors->InsertNextTypedTuple(color);
-          augmentedNum++;
+          if (voxelGreyValue > threshold)
+          {
+            pointsOverlay->InsertNextPoint(position[0],position[1],position[2]);
+            unsigned char color[3] = {voxelGreyValue,voxelGreyValue,voxelGreyValue};
+            colorsOverlay->InsertNextTypedTuple(color);
+            augmentedNum++;
+          }
         }
       }
-      std::vector<int> augmentedNums(10,0);
-      augmentedNums[0] = augmentedNum;
-      int iteration = 0, totalAugmentNum=0;
-      while(iteration<9)
+      vtkSmartPointer<vtkPolyData> inputPolyData =
+      vtkSmartPointer<vtkPolyData>::New();
+      inputPolyData->SetPoints(pointsOverlay);
+      vtkSmartPointer<vtkDelaunay2D> delaunay =
+      vtkSmartPointer<vtkDelaunay2D>::New();
+      delaunay->SetInputData(inputPolyData);
+      delaunay->Update();
+      
+      vtkSmartPointer<vtkSmoothPolyDataFilter> smoothFilter =
+      vtkSmartPointer<vtkSmoothPolyDataFilter>::New();
+      smoothFilter->SetInputConnection(delaunay->GetOutputPort());
+      smoothFilter->SetNumberOfIterations(15);
+      smoothFilter->SetRelaxationFactor(0.1);
+      smoothFilter->FeatureEdgeSmoothingOff();
+      smoothFilter->BoundarySmoothingOn();
+      smoothFilter->Update();
+      
+      inputPolyData = smoothFilter->GetOutput();
+      if (inputPolyData->GetPoints())
       {
-        for (int i = 0; i < augmentedNums[iteration]; i++)
+        points = inputPolyData->GetPoints();
+        pointNum = points->GetNumberOfPoints();
+        pointsOverlay->Reset();
+        colorsOverlay->Reset();
+        for (int i = 0; i < pointNum; i++)
         {
-          double* position = points->GetPoint(pointNum + i + totalAugmentNum);
+          double* position = points->GetPoint(i);
           int ijk[3]={0};
           double pcoords[3]={0.0};
           if (this->_imageData->ComputeStructuredCoordinates(position, ijk, pcoords))
           {
             double voxelGreyValue = _imageData->GetScalarComponentAsDouble(ijk[0],ijk[1],ijk[2],0);
-            points->InsertNextPoint(position[0],position[1],position[2]+1);
-            unsigned char color[3] = {voxelGreyValue,0,0};
-            colors->InsertNextTypedTuple(color);
-            augmentedNums[iteration+1] ++;
+            if (voxelGreyValue > threshold)
+            {
+              pointsOverlay->InsertNextPoint(position[0],position[1],position[2]);
+              unsigned char color[3] = {voxelGreyValue,voxelGreyValue,voxelGreyValue};
+              colorsOverlay->InsertNextTypedTuple(color);
+              augmentedNum++;
+            }
           }
         }
-        totalAugmentNum += augmentedNums[iteration];
-        iteration++;
+        inputPolyData->SetPoints(pointsOverlay);
+        delaunay->SetInputData(inputPolyData);
+        delaunay->Update();
       }
       
-      _polyData->SetPoints(points);
-      _polyData->GetPointData()->SetScalars(colors);
-      vertexFilter->SetInputData(_polyData);
-      vertexFilter->Update();
-      _polyData->ShallowCopy(vertexFilter->GetOutput());
+      this->_polyDataOverlay = delaunay->GetOutput();
+      this->_polyDataOverlay->GetPointData()->SetScalars(colorsOverlay);
+      
     }
   }
 }

@@ -49,7 +49,9 @@
 #include <vtkCellArray.h>
 #include <vtkSmartPointer.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkDataSetMapper.h>
 #include <vtkRenderWindowInteractor.h>
+#include <vtkReverseSense.h>
 
 //-----------------------------------------------------------------------------
 /// \ingroup Slicer_QtModules_ExtensionTemplate
@@ -69,8 +71,11 @@ public:
   vtkRenderer* activeRenderer;
   vtkRenderer*   PolyDataRenderer;
   vtkSmartPointer<vtkActor> PolyDataActor;
+  vtkSmartPointer<vtkActor> SurfaceActor;
   vtkSmartPointer<vtkPolyData> polydata;
-  vtkSmartPointer<vtkPolyDataMapper> mapper;
+  vtkSmartPointer<vtkPolyData> polyDataOverlay;
+  vtkSmartPointer<vtkDataSetMapper> mapper;
+  vtkSmartPointer<vtkDataSetMapper> sliceMapper;
   vtkSmartPointer<vtkMRMLSliceCompositeNode> RedSliceCompositionNode;
   uint8_t * RGBFrame;
   int picWidth = 512;
@@ -131,19 +136,24 @@ qSlicerKinectTrackingModuleWidget::qSlicerKinectTrackingModuleWidget(QWidget* _p
   d->PolyDataRenderer = activeRenderer;
   vtkRenderWindow* activeRenderWindow = activeRenderer->GetRenderWindow();
   d->polydata = vtkSmartPointer<vtkPolyData>::New();
+  d->polyDataOverlay = vtkSmartPointer<vtkPolyData>::New();
   if (activeRenderer)
   {
-    d->mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    d->mapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    d->sliceMapper = vtkSmartPointer<vtkDataSetMapper>::New();
+    d->sliceMapper->SetInputData(d->polyDataOverlay);
     d->mapper->SetInputData(d->polydata);
     d->PolyDataActor = vtkSmartPointer<vtkActor>::New();
     d->PolyDataActor->SetMapper(d->mapper);
+    d->SurfaceActor = vtkSmartPointer<vtkActor>::New();
+    d->SurfaceActor->SetMapper(d->sliceMapper);
     d->PolyDataRenderer->AddActor(d->PolyDataActor);
+    d->PolyDataRenderer->AddActor(d->SurfaceActor);
     activeRenderWindow->AddRenderer(d->PolyDataRenderer);
     activeRenderWindow->Render();
     activeRenderWindow->GetInteractor()->Start();
     d->graphicsView->setFixedSize(d->picWidth, d->picHeight);
   }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -384,19 +394,23 @@ void qSlicerKinectTrackingModuleWidget::importDataAndEvents()
       int64_t startTime = Connector::getTime();
       if (d->IGTLConnectorNode->STATE_CONNECTED)
       {
-        d->polydata = igtlLogic->CallConnectorTimerHander();
+        igtlLogic->CallConnectorTimerHander();
+        d->polydata = igtlLogic->GetPolyData();
+        d->polyDataOverlay = igtlLogic->GetPolyDataOverlay();
+        
       }
       else
       {
-        d->polydata = igtlLogic->polyData;
+        d->polydata = igtlLogic->GetPolyData();
       }
       //-------------------
       // Convert the image in p_PixmapConversionBuffer to a QPixmap
-      if (d->polydata)
+      if (d->polydata && igtlLogic->GetFrame())
       {
         memcpy(d->RGBFrame, igtlLogic->GetFrame(), d->picWidth*d->picHeight*3);
         int64_t renderingTime = Connector::getTime();
         d->mapper->SetInputData(d->polydata);
+        d->sliceMapper->SetInputData(d->polyDataOverlay);
         d->PolyDataRenderer->GetRenderWindow()->Render();
         d->graphicsView->setRGBFrame(d->RGBFrame);
         d->graphicsView->update();

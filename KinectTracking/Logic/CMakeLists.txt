@@ -14,6 +14,9 @@ set(${KIT}_SRCS
   vtkSlicer${MODULE_NAME}Logic.h
   Tracking.h
   Tracking.cpp
+  Tracking.h
+  SurfaceRendering.h
+  SurfaceRendering.cpp
   )
 set(${KIT}_TARGET_LIBRARIES
   ${ITK_LIBRARIES}

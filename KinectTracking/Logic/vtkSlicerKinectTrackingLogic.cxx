@@ -198,7 +198,7 @@ vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
   const std::string targetFileName = "/Users/longquanchen/Desktop/Github/KinectTracking/StarbuckCup.ply";
   this->Initialized   = 0;
   this->SurfaceRendering = true;
-  this->EnableTracking = true;
+  this->EnableTracking = false;
   this->MessageConverterList.clear();
   this->polyData = vtkSmartPointer<vtkPolyData>::New();
   // register default data types
@@ -289,7 +289,7 @@ vtkMRMLIGTLConnectorNode* vtkSlicerKinectTrackingLogic::GetConnector(const char*
 }
 
 //---------------------------------------------------------------------------
-vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::CallConnectorTimerHander()
+void vtkSlicerKinectTrackingLogic::CallConnectorTimerHander()
 {
   //ConnectorMapType::iterator cmiter;
   std::vector<vtkMRMLNode*> nodes;
@@ -338,12 +338,11 @@ vtkSmartPointer<vtkPolyData> vtkSlicerKinectTrackingLogic::CallConnectorTimerHan
     {
       surfaceRender->setPolyData(this->polyData);
       surfaceRender->Rendering();
+      this->polyDataOverlay = surfaceRender->getPolyDataOverlay();
     }
-    return this->polyData;
     std::cerr<<"Depth Image conversion Time: "<<(Connector::getTime()-conversionTime)/1e6 << std::endl;
     
   }
-  return NULL;
 }
 
 //---------------------------------------------------------------------------

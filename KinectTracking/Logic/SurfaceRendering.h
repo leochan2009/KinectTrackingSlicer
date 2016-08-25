@@ -15,6 +15,7 @@
 #include <vtkCellArray.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkSmartPointer.h>
+#include <vtkReverseSense.h>
 #include <Vector>
 #endif
 
@@ -27,8 +28,12 @@ namespace KinectDataRendering {
     ~SurfaceRender();
     
     vtkSmartPointer<vtkPolyData> _polyData;
+    vtkSmartPointer<vtkPolyData>  _polyDataOverlay;
+    vtkSmartPointer<vtkReverseSense>  _surfRecon;
     vtkSmartPointer<vtkImageData> _imageData;
     vtkSmartPointer<vtkVertexGlyphFilter> vertexFilter;
+    
+    int _threshold;
     
     std::vector<int> correspondPos;
     
@@ -38,8 +43,12 @@ namespace KinectDataRendering {
     
     void setPolyData(vtkSmartPointer<vtkPolyData> polyData);
     
+    vtkSmartPointer<vtkPolyData> getPolyDataOverlay();
+    
     void setImageData(vtkImageData* imageData);
     
     void Rendering();
+    
+    bool setThreshold(int threshold);
   };
 }

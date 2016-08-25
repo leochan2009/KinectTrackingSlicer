@@ -21,6 +21,7 @@
 #include "codec/api/svc/codec_app_def.h"
 #include "test/utils/BufferedData.h"
 #include "test/utils/FileInputStream.h"
+/*
 extern "C" {
   #include "/Users/longquanchen/Downloads/libav-10.7/libavutil/opt.h"
   #include "/Users/longquanchen/Downloads/libav-10.7/libavutil/frame.h"
@@ -30,7 +31,7 @@ extern "C" {
   #include "/Users/longquanchen/Downloads/libav-10.7/libavutil/imgutils.h"
   #include "/Users/longquanchen/Downloads/libav-10.7/libavutil/mathematics.h"
   #include "/Users/longquanchen/Downloads/libav-10.7/libavutil/samplefmt.h"
-}
+}*/
 #define 	AV_INPUT_BUFFER_PADDING_SIZE   8
 // OpenIGTLink includes
 #include <igtl_util.h>
@@ -100,7 +101,7 @@ using namespace vtkIGTLToMRMLDepthVideoFunction;
 
 void vtkIGTLToMRMLDepthVideo::AVDecode(AVCodecContext *c, unsigned char* kpH264BitStream, int32_t& iWidth, int32_t& iHeight, int32_t& iStreamSize, uint8_t* outputByteStream)
 {
-  AVFrame *frame;
+  /*AVFrame *frame;
   frame = av_frame_alloc();
   AVPacket avpkt;
   av_init_packet(&avpkt);
@@ -110,16 +111,17 @@ void vtkIGTLToMRMLDepthVideo::AVDecode(AVCodecContext *c, unsigned char* kpH264B
   avpkt.size = iStreamSize;
   avpkt.data = inbuf;
   int got_frame;
-  int len = avcodec_decode_video2(c, frame, &got_frame, &avpkt);
+  int len;
+  //int len = avcodec_decode_video2(c, frame, &got_frame, &avpkt);
   if (len)
   {
     memcpy(outputByteStream, frame->data[0], iWidth*iHeight*3/2);
   }
-  /* Some codecs, such as MPEG, transmit the I- and P-frame with a
-   latency of one frame. You must do the following to have a
-   chance to get the last frame of the video. */
+  //Some codecs, such as MPEG, transmit the I- and P-frame with a
+  //latency of one frame. You must do the following to have a
+  //chance to get the last frame of the video.
   av_frame_free(&frame);
-
+  */
 }
 
 void vtkIGTLToMRMLDepthVideo::H264Decode (ISVCDecoder* pDecoder, unsigned char* kpH264BitStream, int32_t& iWidth, int32_t& iHeight, int32_t& iStreamSize, uint8_t* outputByteStream) {
@@ -253,14 +255,14 @@ int vtkIGTLToMRMLDepthVideo::SetupDecoder()
   decoderColor_->Initialize (&decParam);
   
   //avcodec_register_all();
-  AVCodec *codec;
+  /*AVCodec *codec;
   codec = avcodec_find_decoder(AV_CODEC_ID_H264);
   AVDecoderDepthIndex = avcodec_alloc_context3(codec);
   avcodec_open2(AVDecoderDepthIndex, codec, NULL);
   AVDecoderDepthFrame = avcodec_alloc_context3(codec);
   avcodec_open2(AVDecoderDepthFrame, codec, NULL);
   AVDecoderDepthColor = avcodec_alloc_context3(codec);
-  avcodec_open2(AVDecoderDepthColor, codec, NULL);
+  avcodec_open2(AVDecoderDepthColor, codec, NULL);*/
   
   return 1;
 }
