@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>814</width>
-    <height>797</height>
+    <width>562</width>
+    <height>312</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,10 +22,10 @@
      <widget class="QWidget" name="layoutWidget">
       <property name="geometry">
        <rect>
-        <x>202</x>
+        <x>21</x>
         <y>52</y>
-        <width>424</width>
-        <height>123</height>
+        <width>490</width>
+        <height>159</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -66,6 +66,62 @@
          </item>
          <item>
           <widget class="QLineEdit" name="ConnectorPortEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="inputMethodHints">
+            <set>Qt::ImhDigitsOnly</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_8">
+         <item>
+          <widget class="QLabel" name="ConnectorHostAddressLabel_2">
+           <property name="text">
+            <string>Robot IP:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ConnectorHostAddressEdit_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="inputMethodHints">
+            <set>Qt::ImhDigitsOnly</set>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="ConnectorPortLabel_2">
+           <property name="text">
+            <string>  Port:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="ConnectorPortEdit_2">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -184,108 +240,151 @@
         </layout>
        </item>
        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_11">
-          <item>
-            <widget class="QLabel" name="NodeSelectorLabel">
-            <property name="text">
+        <layout class="QHBoxLayout" name="horizontalLayout_11">
+         <item>
+          <widget class="QLabel" name="NodeSelectorLabel">
+           <property name="text">
             <string>TargetModelInputs</string>
-            </property>
-            </widget>
-          </item>
-          <item>
-            <widget class="qMRMLNodeComboBox" name="NodeSelector" native="true">
-              <property name="noneEnabled">
-               <bool>false</bool>
-              </property>
-              <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-                </sizepolicy>
-              </property>
-                <property name="minimumSize">
-                <size>
-                <width>80</width>
-                <height>10</height>
-                </size>
-              </property>
-              <property name="nodeTypes" stdset="0">
-                <stringlist>
-                  <string>vtkMRMLModelNode</string>
-                </stringlist>
-              </property>
-              <property name="addAttribute" stdset="0">
-                <stringlist>
-                  <string>vtkMRMLModelNode</string>
-                  <string>vtkMRMLDisplayableNode</string>
-                  <string>vtkMRMLStorableNode</string>
-                </stringlist>
-              </property>
-              <property name="addEnabled" stdset="0">
-                <bool>true</bool>
-              </property>
-              <property name="removeEnabled" stdset="0">
-                <bool>true</bool>
-              </property>
-              <property name="showChildNodeTypes" stdset="0">
-                <bool>true</bool>
-              </property>
-              <property name="selectNodeUponCreation" stdset="0">
-                <bool>true</bool>
-              </property>
-            </widget>
-          </item>
-         </layout>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="qMRMLNodeComboBox" name="NodeSelector" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>80</width>
+             <height>10</height>
+            </size>
+           </property>
+           <property name="noneEnabled" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="nodeTypes" stdset="0">
+            <stringlist>
+             <string>vtkMRMLModelNode</string>
+            </stringlist>
+           </property>
+           <property name="addAttribute" stdset="0">
+            <stringlist>
+             <string>vtkMRMLModelNode</string>
+             <string>vtkMRMLDisplayableNode</string>
+             <string>vtkMRMLStorableNode</string>
+            </stringlist>
+           </property>
+           <property name="addEnabled" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="removeEnabled" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="showChildNodeTypes" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="selectNodeUponCreation" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="NodeSelectorLabel2">
+           <property name="text">
+            <string>TransformationRobotToSlicer</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="qMRMLNodeComboBox" name="NodeSelectorTransform" native="true">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>80</width>
+             <height>10</height>
+            </size>
+           </property>
+           <property name="noneEnabled" stdset="0">
+            <bool>false</bool>
+           </property>
+           <property name="nodeTypes" stdset="0">
+            <stringlist>
+             <string>vtkMRMLTransformNode</string>
+            </stringlist>
+           </property>
+           <property name="addEnabled" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="removeEnabled" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="showChildNodeTypes" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="selectNodeUponCreation" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
-     <widget class="SlicerVideoWidget" name="graphicsView">
+     <widget class="SlicerVideoWidget" name="graphicsView" native="true">
       <property name="geometry">
-        <rect>
+       <rect>
         <x>130</x>
         <y>180</y>
         <width>512</width>
         <height>424</height>
-        </rect>
+       </rect>
       </property>
      </widget>
     </widget>
    </item>
   </layout>
  </widget>
-<customwidgets>
+ <customwidgets>
   <customwidget>
-    <class>qMRMLNodeComboBox</class>
-    <extends>QWidget</extends>
-    <header>qMRMLNodeComboBox.h</header>
+   <class>qMRMLNodeComboBox</class>
+   <extends>QWidget</extends>
+   <header>qMRMLNodeComboBox.h</header>
   </customwidget>
   <customwidget>
-  <class>SlicerVideoWidget</class>
-  <extends>QWidget</extends>
-  <header>Widgets/SlicerVideoWidget.h</header>
-  <container>1</container>
+   <class>SlicerVideoWidget</class>
+   <extends>QWidget</extends>
+   <header>Widgets/SlicerVideoWidget.h</header>
+   <container>1</container>
   </customwidget>
-</customwidgets>
+ </customwidgets>
  <tabstops>
   <tabstop>ConnectorStateCheckBox</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-    <sender>qSlicerKinectTrackingModuleWidget</sender>
-    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
-    <receiver>NodeSelector</receiver>
-    <slot>setMRMLScene(vtkMRMLScene*)</slot>
-    <hints>
+   <sender>qSlicerKinectTrackingModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
+   <receiver>NodeSelector</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
     <hint type="sourcelabel">
-    <x>248</x>
-    <y>1</y>
+     <x>248</x>
+     <y>1</y>
     </hint>
     <hint type="destinationlabel">
-    <x>230</x>
-    <y>19</y>
+     <x>230</x>
+     <y>19</y>
     </hint>
-    </hints>
+   </hints>
   </connection>
  </connections>
 </ui>

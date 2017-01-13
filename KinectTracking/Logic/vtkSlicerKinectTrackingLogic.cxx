@@ -195,19 +195,21 @@ void vtkSlicerKinectTrackingLogic::SetImage(vtkImageData* imageData)
 
 vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
 {
-  const std::string targetFileName = "/Users/longquanchen/Desktop/Github/KinectTracking/StarbuckCup.ply";
+  const std::string targetFileName = "/Users/longquanchen/Desktop/Slicer/KinectTrackingSlicer/StarbuckCup2.vtk";
   this->Initialized   = 0;
   this->SurfaceRendering = true;
-  this->EnableTracking = false;
+  this->EnableTracking = true;
   this->MessageConverterList.clear();
   this->polyData = vtkSmartPointer<vtkPolyData>::New();
   // register default data types
   this->PolyConverter = vtkIGTLToMRMLDepthVideo::New();
-  
+  this->StringConverter = vtkIGTLToMRMLString::New();
+  this->RobotToSlicerMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
   colors = vtkSmartPointer<vtkUnsignedCharArray>::New();
   vertexFilter = vtkSmartPointer<vtkVertexGlyphFilter>::New();
   cloud = vtkSmartPointer<vtkPoints>::New();
   RegisterMessageConverter(this->PolyConverter);
+  RegisterMessageConverter(this->StringConverter);
   trackingInitializationWithName(targetFileName);
   pcl::PCDReader reader;
   pcl::PointCloud<pcl::PointXYZRGB >::Ptr cloud (new pcl::PointCloud<pcl::PointXYZRGB>);
@@ -232,6 +234,12 @@ vtkSlicerKinectTrackingLogic::~vtkSlicerKinectTrackingLogic()
 void vtkSlicerKinectTrackingLogic::ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData)
 {
   trackingInitializationPLY(targetPolyData);
+}
+
+
+void vtkSlicerKinectTrackingLogic::ResetRobotToSlicerRegistration(vtkSmartPointer<vtkMatrix4x4> matrix)
+{
+  this->RobotToSlicerMatrix->DeepCopy(matrix);
 }
 
 //----------------------------------------------------------------------------
@@ -310,9 +318,15 @@ void vtkSlicerKinectTrackingLogic::CallConnectorTimerHander()
     connector->ImportDataFromCircularBuffer();
     connector->ImportEventsFromEventBuffer();
     connector->PushOutgoingMessages();
-    RGBFrame = connector->RGBFrame;
-    DepthFrame = connector->DepthFrame;
-    DepthIndex = connector->DepthIndex;
+    if (strcmp(connector->GetConnectionTagName(),"Kinect")==0)
+    {
+      RGBFrame = connector->RGBFrame;
+      DepthFrame = connector->DepthFrame;
+      DepthIndex = connector->DepthIndex;
+    }
+    else if(strcmp(connector->GetConnectionTagName(),"Robot")==0)
+    {
+    }
   }
   if (DepthFrame && RGBFrame && DepthIndex)
   {
@@ -333,6 +347,12 @@ void vtkSlicerKinectTrackingLogic::CallConnectorTimerHander()
       }
       transformNode->GetSliceToRAS()->DeepCopy(transformMatrix);
       transformNode->UpdateMatrices();
+      float posOfCup[4] = {0,0,0,0};
+      for(int i =0; i<4; i++)
+      {
+        posOfCup[i]= transformMatrix->GetElement(i,3);
+      }
+      this->RobotToSlicerMatrix->MultiplyPoint(posOfCup, this->targetInRobotCoord);
     }
     if (this->SurfaceRendering)
     {

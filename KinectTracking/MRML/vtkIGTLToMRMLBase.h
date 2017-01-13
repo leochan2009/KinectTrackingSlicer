@@ -91,6 +91,8 @@ class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkIGTLToMRMLBase : public vt
   // If mrmlNode is QueryNode, the function will generate query node. (event is not used.)
   virtual vtkSmartPointer<vtkPolyData>   IGTLToMRML(igtl::MessageBase::Pointer buffer,
                                   vtkMRMLNode* node);
+  virtual float*     GetFloatValue( igtl::MessageBase::Pointer buffer){};
+  
   // Description:
   // Functions to convert OpenIGTLink message to uint8_t stream data for further procession.
   // If mrmlNode is QueryNode, the function will generate query node. (event is not used.)

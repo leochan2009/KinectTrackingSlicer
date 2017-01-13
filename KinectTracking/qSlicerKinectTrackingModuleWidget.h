@@ -81,6 +81,8 @@ public:
   
   void SelectModel(vtkMRMLNode* node);
   
+  void SelectTransform(vtkMRMLNode* node);
+  
   void SelectImageModel(vtkMRMLNode* node);
   
 protected:

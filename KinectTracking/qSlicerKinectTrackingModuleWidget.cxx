@@ -35,11 +35,16 @@
 // OpenIGTLinkIF MRML includes
 #include "vtkMRMLIGTLConnectorNode.h"
 #include "vtkIGTLToMRMLDepthVideo.h"
+#include "vtkIGTLToMRMLString.h"
 #include "vtkMRMLIGTLQueryNode.h"
+#include "vtkMRMLTextNode.h"
 #include <qMRMLNodeFactory.h>
 #include <vtkMRMLModelNode.h>
+#include <vtkMRMLTransformNode.h>
 #include <vtkMRMLScalarVolumeNode.h>
 #include <vtkMRMLSliceCompositeNode.h>
+
+#include "igtlStringMessage.h"
 
 //VTK include
 #include <vtkNew.h>
@@ -64,8 +69,10 @@ public:
   qSlicerKinectTrackingModuleWidgetPrivate(qSlicerKinectTrackingModuleWidget& object);
   
   vtkMRMLIGTLConnectorNode * IGTLConnectorNode;
+  vtkMRMLIGTLConnectorNode * IGTLRobotConnectorNode;
   vtkMRMLIGTLQueryNode * IGTLDataQueryNode;
   vtkIGTLToMRMLDepthVideo* converter;
+  vtkIGTLToMRMLString* targetPosConverter;
   QTimer ImportDataAndEventsTimer;
   vtkSlicerKinectTrackingLogic * logic();
   vtkRenderer* activeRenderer;
@@ -90,6 +97,7 @@ public:
 qSlicerKinectTrackingModuleWidgetPrivate::qSlicerKinectTrackingModuleWidgetPrivate(qSlicerKinectTrackingModuleWidget& object):q_ptr(&object)
 {
   this->IGTLConnectorNode = NULL;
+  this->IGTLRobotConnectorNode = NULL;
   this->IGTLDataQueryNode = NULL;
   RGBFrame = new uint8_t[picWidth*picHeight*3];
 }
@@ -119,11 +127,16 @@ qSlicerKinectTrackingModuleWidget::qSlicerKinectTrackingModuleWidget(QWidget* _p
                    this, SLOT(updateIGTLConnectorNode()));
   QObject::connect(d->ConnectorHostAddressEdit, SIGNAL(editingFinished()),
                    this, SLOT(updateIGTLConnectorNode()));
+  QObject::connect(d->ConnectorPortEdit_2, SIGNAL(editingFinished()),
+                   this, SLOT(updateIGTLConnectorNode()));
+  QObject::connect(d->ConnectorHostAddressEdit_2, SIGNAL(editingFinished()),
+                   this, SLOT(updateIGTLConnectorNode()));
   QObject::connect(d->ConnectorStateCheckBox, SIGNAL(toggled(bool)),
                    this, SLOT(startCurrentIGTLConnector(bool)));
   QObject::connect(d->StartVideoCheckBox, SIGNAL(toggled(bool)),
                    this, SLOT(startVideoTransmission(bool)));
   QObject::connect(d->NodeSelector, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(SelectModel(vtkMRMLNode*)));
+  QObject::connect(d->NodeSelectorTransform, SIGNAL(currentNodeChanged(vtkMRMLNode*)), this, SLOT(SelectTransform(vtkMRMLNode*)));
   qSlicerApplication *  app = qSlicerApplication::application();
   qMRMLSliceWidget* sliceWidget = app->layoutManager()->sliceWidget("Red");
   qMRMLSliceControllerWidget* sliceControllerWidget = sliceWidget->sliceController();
@@ -170,12 +183,18 @@ void qSlicerKinectTrackingModuleWidget::setMRMLScene(vtkMRMLScene* scene)
   if (this->mrmlScene())
   {
     d->IGTLConnectorNode = vtkMRMLIGTLConnectorNode::SafeDownCast(this->mrmlScene()->CreateNodeByClass("vtkMRMLIGTLConnectorNode"));
+    d->IGTLRobotConnectorNode = vtkMRMLIGTLConnectorNode::SafeDownCast(this->mrmlScene()->CreateNodeByClass("vtkMRMLIGTLConnectorNode"));
     d->IGTLDataQueryNode = vtkMRMLIGTLQueryNode::SafeDownCast(this->mrmlScene()->CreateNodeByClass("vtkMRMLIGTLQueryNode"));
     this->mrmlScene()->AddNode(d->IGTLConnectorNode); //node added cause the IGTLConnectorNode be initialized
+    this->mrmlScene()->AddNode(d->IGTLRobotConnectorNode);
     this->mrmlScene()->AddNode(d->IGTLDataQueryNode);
     d->converter = vtkIGTLToMRMLDepthVideo::New();
     d->converter->SetIGTLName("ColoredDepth");
     d->IGTLConnectorNode->RegisterMessageConverter(d->converter);
+    d->IGTLConnectorNode->SetConnectionTagName("Kinect");
+    d->targetPosConverter = vtkIGTLToMRMLString::New();
+    d->IGTLRobotConnectorNode->RegisterMessageConverter(d->targetPosConverter);
+    d->IGTLRobotConnectorNode->SetConnectionTagName("Robot");
     qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingTargetModel(vtkObject*,vtkObject*) ) );
     qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingImage(vtkObject*,vtkObject*) ) );
     d->RedSliceCompositionNode = vtkMRMLSliceCompositeNode::SafeDownCast(this->mrmlScene()->GetNodeByID("vtkMRMLSliceCompositeNodeRed"));
@@ -245,6 +264,13 @@ void qSlicerKinectTrackingModuleWidget::AddingTargetModel(vtkObject* sceneObject
 void qSlicerKinectTrackingModuleWidget::SelectModel(vtkMRMLNode* node)
 {
   this->UpdateTargetModel(this->mrmlScene(), node);
+}
+
+void qSlicerKinectTrackingModuleWidget::SelectTransform(vtkMRMLNode* node)
+{
+  Q_D(qSlicerKinectTrackingModuleWidget);
+  vtkMRMLTransformNode* transform = vtkMRMLTransformNode::SafeDownCast(node);
+  vtkSlicerKinectTrackingLogic::SafeDownCast(d->logic())->ResetRobotToSlicerRegistration(transform->GetMatrixTransformToParent()); // check the matrix!!!!!
 }
 
 void qSlicerKinectTrackingModuleWidget::UpdateTargetModel(vtkObject* sceneObject, vtkObject* nodeObject)
@@ -372,13 +398,18 @@ void qSlicerKinectTrackingModuleWidget::startVideoTransmission(bool value)
 void qSlicerKinectTrackingModuleWidget::updateIGTLConnectorNode()
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
-  if (d->IGTLConnectorNode != NULL)
+  if (d->IGTLConnectorNode != NULL && d->IGTLRobotConnectorNode != NULL)
   {
     d->IGTLConnectorNode->DisableModifiedEventOn();
     d->IGTLConnectorNode->SetServerHostname(d->ConnectorHostAddressEdit->text().toStdString());
     d->IGTLConnectorNode->SetServerPort(d->ConnectorPortEdit->text().toInt());
     d->IGTLConnectorNode->DisableModifiedEventOff();
     d->IGTLConnectorNode->InvokePendingModifiedEvent();
+    d->IGTLRobotConnectorNode->DisableModifiedEventOn();
+    d->IGTLRobotConnectorNode->SetServerHostname(d->ConnectorHostAddressEdit_2->text().toStdString());
+    d->IGTLRobotConnectorNode->SetServerPort(d->ConnectorPortEdit_2->text().toInt());
+    d->IGTLRobotConnectorNode->DisableModifiedEventOff();
+    d->IGTLRobotConnectorNode->InvokePendingModifiedEvent();
   }
 }
 
@@ -415,6 +446,16 @@ void qSlicerKinectTrackingModuleWidget::importDataAndEvents()
         d->graphicsView->setRGBFrame(d->RGBFrame);
         d->graphicsView->update();
         std::cerr<<"Rendering Time: "<<(Connector::getTime()-renderingTime)/1e6 << std::endl;
+      }
+      if(d->IGTLRobotConnectorNode->STATE_CONNECTED)
+      {
+        char str[30];
+        sprintf(str, "%.1f %.1f %.1f",igtlLogic->targetInRobotCoord[0],igtlLogic->targetInRobotCoord[1],igtlLogic->targetInRobotCoord[2] );
+        igtl::StringMessage::Pointer msg = igtl::StringMessage::New();
+        msg->AllocatePack();
+        msg->SetString(str);
+        msg->Pack();
+        d->IGTLRobotConnectorNode->SendData(msg->GetPackSize(), (unsigned char*)msg->GetPackPointer());
       }
     }
   }

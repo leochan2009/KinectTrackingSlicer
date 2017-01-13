@@ -77,6 +77,7 @@ const char *vtkMRMLIGTLConnectorNode::ConnectorStateStr[vtkMRMLIGTLConnectorNode
 vtkMRMLIGTLConnectorNode::vtkMRMLIGTLConnectorNode()
 {
   this->RGBFrame = new uint8_t[1280*720*3];
+  this->NeedlePos = new float[3];
   this->conversionFinish = false;
   this->conditionVar = igtl::ConditionVariable::New();
   this->localMutex = new igtl::SimpleMutexLock();
@@ -1113,6 +1114,10 @@ uint8_t* vtkMRMLIGTLConnectorNode::ImportDataFromCircularBuffer()
             else if(strcmp(buffer->GetDeviceName(), "ColorFrame") == 0)
             {
               RGBFrame = converter->IGTLToMRML(buffer);
+            }
+            else if(strcmp(buffer->GetBodyType(), "STRING") == 0)
+            {
+              NeedlePos = converter->GetFloatValue(buffer);
             }
             /*else if(strcmp(buffer->GetDeviceName(), "KinectRGBD") == 0)
             {

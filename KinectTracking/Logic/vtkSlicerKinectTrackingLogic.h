@@ -30,6 +30,7 @@
 
 // MRML includes
 #include "vtkIGTLToMRMLDepthVideo.h"
+#include "vtkIGTLToMRMLString.h"
 #include "vtkIGTLToMRMLBase.h"
 
 // STD includes
@@ -50,6 +51,7 @@
 #include <vtkVertexGlyphFilter.h>
 #include <vtkUnsignedCharArray.h>
 #include <vtkReverseSense.h>
+#include <vtkMatrix4x4.h>
 
 //Local includes
 #include "Tracking.h"
@@ -124,15 +126,18 @@ public:
   vtkSmartPointer<vtkImageData> imageData;
   void SetImage(vtkImageData* imageData);
   void ResetTargetModel(vtkSmartPointer<vtkPolyData> targetPolyData);
+  void ResetRobotToSlicerRegistration(vtkSmartPointer<vtkMatrix4x4> matrix);
   vtkSmartPointer<vtkPolyData> GetPolyData(){return polyData;};
    vtkSmartPointer<vtkPolyData> GetPolyDataOverlay(){return polyDataOverlay;};
   bool EnableTracking;
   bool SurfaceRendering;
+  float targetInRobotCoord[4];
   
 protected:
   unsigned char * DepthFrame;
   unsigned char * RGBFrame;
   unsigned char * DepthIndex;
+  float* NeedelPos;
   
   vtkSmartPointer<vtkPolyData> polyData;
   
@@ -171,11 +176,13 @@ private:
   // IGTL-MRML converters
   //----------------------------------------------------------------
   vtkIGTLToMRMLDepthVideo * PolyConverter;
+  vtkIGTLToMRMLString* StringConverter;
 
   std::vector<int> lu;
   vtkSmartPointer<vtkUnsignedCharArray> colors;
   vtkSmartPointer<vtkVertexGlyphFilter> vertexFilter;
   vtkSmartPointer<vtkPoints>  cloud;
+  vtkSmartPointer <vtkMatrix4x4> RobotToSlicerMatrix;
   
 private:
   

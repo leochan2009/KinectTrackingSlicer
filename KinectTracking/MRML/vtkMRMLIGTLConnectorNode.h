@@ -142,11 +142,15 @@ class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkMRMLIGTLConnectorNode : pu
   // Description:
   // Copy the node's attributes to this object
   virtual void Copy(vtkMRMLNode *node);
-
+  virtual const char* GetNodeTagName()
+  {return "IGTLConnector";};
   // Description:
   // Get node XML tag name (like Volume, Model)
-  virtual const char* GetNodeTagName()
-    {return "IGTLConnector";};
+  virtual const char* GetConnectionTagName()
+    {return this->tagName.c_str();};
+  
+  virtual std::string SetConnectionTagName(const char* tag)
+  {this->tagName = std::string(tag);};
 
   // method to propagate events generated in mrml
   virtual void ProcessMRMLEvents ( vtkObject *caller, unsigned long event, void *callData );
@@ -215,6 +219,8 @@ class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkMRMLIGTLConnectorNode : pu
   int ReceiveController();
   int SendData(int size, unsigned char* data);
   int Skip(int length, int skipFully=1);
+  
+  std::string tagName;
 
   //----------------------------------------------------------------
   // Circular Buffer
@@ -331,6 +337,8 @@ class VTK_SLICER_KinectTracking_MODULE_MRML_EXPORT vtkMRMLIGTLConnectorNode : pu
   uint8_t* RGBFrame;
   uint8_t* DepthFrame;
   uint8_t* DepthIndex;
+  
+  float*   NeedlePos;
   
   vtkSmartPointer<vtkPolyData> PolyData;
 
