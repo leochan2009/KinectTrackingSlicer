@@ -26,4 +26,5 @@ void TrackCylindarObject(vtkSmartPointer<vtkPolyData> polyData);
 void trackingInitialization(pcl::PointCloud<PointT>::Ptr target_cloud);
 void trackingInitializationWithName(const std::string targetFileName);
 void trackingInitializationPLY(vtkSmartPointer<vtkPolyData> polyData);
+void setRobotPos(float* pos);
 Eigen::Affine3f GetTransform();

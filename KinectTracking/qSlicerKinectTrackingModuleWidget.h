@@ -75,15 +75,15 @@ public:
   /// Internal function to update the IGTLConnector node based on the property widget
   void updateIGTLConnectorNode();
   
-  void AddingTargetModel(vtkObject* sceneObject, vtkObject* nodeObject);
-  
-  void AddingImage(vtkObject* sceneObject, vtkObject* nodeObject);
+  void AddingNode(vtkObject* sceneObject, vtkObject* nodeObject);
   
   void SelectModel(vtkMRMLNode* node);
   
   void SelectTransform(vtkMRMLNode* node);
   
   void SelectImageModel(vtkMRMLNode* node);
+  
+  void UpdateTransform(vtkObject* sceneObject, vtkObject* nodeObject);
   
 protected:
   QScopedPointer<qSlicerKinectTrackingModuleWidgetPrivate> d_ptr;

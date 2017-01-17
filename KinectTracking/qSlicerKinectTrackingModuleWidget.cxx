@@ -195,8 +195,7 @@ void qSlicerKinectTrackingModuleWidget::setMRMLScene(vtkMRMLScene* scene)
     d->targetPosConverter = vtkIGTLToMRMLString::New();
     d->IGTLRobotConnectorNode->RegisterMessageConverter(d->targetPosConverter);
     d->IGTLRobotConnectorNode->SetConnectionTagName("Robot");
-    qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingTargetModel(vtkObject*,vtkObject*) ) );
-    qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingImage(vtkObject*,vtkObject*) ) );
+    qvtkReconnect( this->mrmlScene(), scene, vtkMRMLScene::NodeAddedEvent, this, SLOT( AddingNode(vtkObject*,vtkObject*) ) );
     d->RedSliceCompositionNode = vtkMRMLSliceCompositeNode::SafeDownCast(this->mrmlScene()->GetNodeByID("vtkMRMLSliceCompositeNodeRed"));
     if (d->IGTLConnectorNode)
     {
@@ -218,45 +217,52 @@ void qSlicerKinectTrackingModuleWidget::SelectImageModel(vtkMRMLNode* node)
     d->logic()->SetImage(localNode->GetImageData());
 }
 
-void qSlicerKinectTrackingModuleWidget::AddingImage(vtkObject* sceneObject, vtkObject* nodeObject)
+void qSlicerKinectTrackingModuleWidget::AddingNode(vtkObject* sceneObject, vtkObject* nodeObject)
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
   vtkMRMLScene* scene = vtkMRMLScene::SafeDownCast(sceneObject);
-  if (!scene || strcmp(nodeObject->GetClassName(),"vtkMRMLScalarVolumeNode"))
+  if (!scene || (strcmp(nodeObject->GetClassName(),"vtkMRMLScalarVolumeNode")==0))
   {
-    return;
-  }
-  
   // Connect segment added and removed events to plugin to update subject hierarchy accordingly
-  vtkMRMLScalarVolumeNode* node = vtkMRMLScalarVolumeNode::SafeDownCast(nodeObject);
-  if (node)
-  {
-    d->RedSliceCompositionNode->SetBackgroundVolumeID(node->GetID());
-    SelectImageModel(node);
-  }
-}
-
-
-void qSlicerKinectTrackingModuleWidget::AddingTargetModel(vtkObject* sceneObject, vtkObject* nodeObject)
-{
-  Q_D(qSlicerKinectTrackingModuleWidget);
-  vtkMRMLScene* scene = vtkMRMLScene::SafeDownCast(sceneObject);
-  if (!scene || strcmp(nodeObject->GetClassName(),"vtkMRMLModelNode"))
-  {
-    return;
-  }
-  
-  // Connect segment added and removed events to plugin to update subject hierarchy accordingly
-  vtkMRMLModelNode* node = vtkMRMLModelNode::SafeDownCast(nodeObject);
-  if (node)
-  {
-    vtkMRMLModelNode* nodePre = vtkMRMLModelNode::SafeDownCast(d->NodeSelector->currentNode());
-    if(nodePre)
+    vtkMRMLScalarVolumeNode* node = vtkMRMLScalarVolumeNode::SafeDownCast(nodeObject);
+    if (node)
     {
-      nodePre->SetDisplayVisibility(false);
+      d->RedSliceCompositionNode->SetBackgroundVolumeID(node->GetID());
+      SelectImageModel(node);
     }
-    d->NodeSelector->setCurrentNode(node);
-    qvtkReconnect( node, vtkMRMLModelNode::PolyDataModifiedEvent, this, SLOT( UpdateTargetModel(vtkObject*,vtkObject*) ) );
+  }
+  if (!scene || (strcmp(nodeObject->GetClassName(),"vtkMRMLTransformNode")==0))
+  {
+  
+    // Connect segment added and removed events to plugin to update subject hierarchy accordingly
+    vtkMRMLTransformNode* node = vtkMRMLTransformNode::SafeDownCast(nodeObject);
+    if (node)
+    {
+      vtkMRMLTransformNode* nodePre = vtkMRMLTransformNode::SafeDownCast(d->NodeSelectorTransform->currentNode());
+      if(nodePre)
+      {
+        nodePre->SetDisplayVisibility(false);
+      }
+      d->NodeSelectorTransform->setCurrentNode(node);
+      qvtkReconnect( node, vtkMRMLTransformNode::TransformModifiedEvent, this, SLOT( UpdateTransform(vtkObject*,vtkObject*) ) );
+    }
+  }
+  
+  if (!scene && (strcmp(nodeObject->GetClassName(),"vtkMRMLModelNode")==0))
+  {
+    
+    // Connect segment added and removed events to plugin to update subject hierarchy accordingly
+    vtkMRMLModelNode* node = vtkMRMLModelNode::SafeDownCast(nodeObject);
+    if (node)
+    {
+      vtkMRMLModelNode* nodePre = vtkMRMLModelNode::SafeDownCast(d->NodeSelector->currentNode());
+      if(nodePre)
+      {
+        nodePre->SetDisplayVisibility(false);
+      }
+      d->NodeSelector->setCurrentNode(node);
+      qvtkReconnect( node, vtkMRMLModelNode::PolyDataModifiedEvent, this, SLOT( UpdateTargetModel(vtkObject*,vtkObject*) ) );
+    }
   }
 }
 
@@ -270,7 +276,10 @@ void qSlicerKinectTrackingModuleWidget::SelectTransform(vtkMRMLNode* node)
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
   vtkMRMLTransformNode* transform = vtkMRMLTransformNode::SafeDownCast(node);
+  if(transform)
+  {
   vtkSlicerKinectTrackingLogic::SafeDownCast(d->logic())->ResetRobotToSlicerRegistration(transform->GetMatrixTransformToParent()); // check the matrix!!!!!
+  }
 }
 
 void qSlicerKinectTrackingModuleWidget::UpdateTargetModel(vtkObject* sceneObject, vtkObject* nodeObject)
@@ -291,7 +300,23 @@ void qSlicerKinectTrackingModuleWidget::UpdateTargetModel(vtkObject* sceneObject
   }
 }
 
-
+void qSlicerKinectTrackingModuleWidget::UpdateTransform(vtkObject* sceneObject, vtkObject* nodeObject)
+{
+  Q_D(qSlicerKinectTrackingModuleWidget);
+  vtkMRMLTransformNode* node = vtkMRMLTransformNode::SafeDownCast(nodeObject);
+  if (node && node->GetMatrixTransformToParent())
+  {
+    QList<vtkMRMLNode*> nodes = d->NodeSelectorTransform->nodes();
+    for (QList<vtkMRMLNode*>::iterator qNodeIter = nodes.begin(); qNodeIter< nodes.end(); qNodeIter ++)
+    {
+      vtkMRMLTransformNode* qNodeObject = vtkMRMLTransformNode::SafeDownCast(*(qNodeIter));
+      if(qNodeObject)
+        qNodeObject->SetDisplayVisibility(false);
+    }
+    node->SetDisplayVisibility(true);
+    vtkSlicerKinectTrackingLogic::SafeDownCast(d->logic())->ResetRobotToSlicerRegistration(node->GetMatrixTransformToParent());
+  }
+}
 
 //------------------------------------------------------------------------------
 void qSlicerKinectTrackingModuleWidget::setMRMLIGTLConnectorNode(vtkMRMLIGTLConnectorNode * connectorNode)

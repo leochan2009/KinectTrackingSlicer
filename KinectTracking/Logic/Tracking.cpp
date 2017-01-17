@@ -86,6 +86,7 @@ CloudPtr cloud_pass_;
 CloudPtr cloud_pass_downsampled_;
 boost::mutex mtx_;
 boost::shared_ptr<ParticleFilter> tracker_;
+float robotPos[3];
 
 void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
 {
@@ -94,6 +95,14 @@ void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_si
   grid.setInputCloud (cloud);
   grid.filter (result);
 }
+
+void setRobotPos(float* pos)
+{
+  robotPos[0] = pos[0];
+  robotPos[1] = pos[1];
+  robotPos[2] = pos[2];
+}
+
 void trackingInitialization(pcl::PointCloud<PointT>::Ptr target_cloud)
 {
   Eigen::Vector4f center;
@@ -108,9 +117,9 @@ void trackingInitialization(pcl::PointCloud<PointT>::Ptr target_cloud)
     target_cloud->at(i).data[2] = target_cloud->at(i).data[2] - center[2];
     target_cloud->at(i).data[1] = target_cloud->at(i).data[1] - center[1];
     target_cloud->at(i).data[0] = target_cloud->at(i).data[0] - center[0];
-    target_cloud->at(i).r = 255;
-    target_cloud->at(i).g = 255;
-    target_cloud->at(i).b = 255;
+    //target_cloud->at(i).r = 255;
+    //target_cloud->at(i).g = 255;
+    //target_cloud->at(i).b = 255;
   }
   //pcl::PCDWriter writer;
   //writer.write("/Users/longquanchen/Desktop/Github/TrackingSample/build/Head/SkinRotatedHalf.pcd",*target_cloud_half);
@@ -186,6 +195,7 @@ void trackingInitialization(pcl::PointCloud<PointT>::Ptr target_cloud)
   
   pcl::compute3DCentroid<RefPointType> (*target_cloud, c);
   trans.translation ().matrix () = Eigen::Vector3f (c[0], c[1], c[2]);
+  //trans.translation().matrix() = Eigen::Vector3f (robotPos[0], robotPos[1], robotPos[2]);
   pcl::transformPointCloud<RefPointType> (*target_cloud, *transed_ref, trans.inverse());
   gridSampleApprox (transed_ref, *transed_ref_downsampled, downsampling_grid_size_);
   

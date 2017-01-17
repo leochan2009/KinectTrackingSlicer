@@ -299,7 +299,7 @@
           </widget>
          </item>
          <item>
-          <widget class="qMRMLNodeComboBox" name="NodeSelectorTransform" native="true">
+          <widget class="qMRMLNodeComboBox" name="NodeSelectorTransform">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -312,25 +312,13 @@
              <height>10</height>
             </size>
            </property>
-           <property name="noneEnabled" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="nodeTypes" stdset="0">
-            <stringlist>
-             <string>vtkMRMLTransformNode</string>
-            </stringlist>
-           </property>
-           <property name="addEnabled" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="removeEnabled" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="showChildNodeTypes" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="selectNodeUponCreation" stdset="0">
-            <bool>true</bool>
+           <property name="nodeTypes">
+			<stringlist>
+			 <string>vtkMRMLLinearTransformNode</string>
+			 <string>vtkMRMLBSplineTransformNode</string>
+			 <string>vtkMRMLGridTransformNode</string>
+			 <string>vtkMRMLTransformNode</string>
+			</stringlist>
            </property>
           </widget>
          </item>
@@ -374,6 +362,7 @@
    <sender>qSlicerKinectTrackingModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>NodeSelector</receiver>
+   <receiver>NodeSelectorTransform</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">

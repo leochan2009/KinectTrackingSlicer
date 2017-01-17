@@ -195,7 +195,7 @@ void vtkSlicerKinectTrackingLogic::SetImage(vtkImageData* imageData)
 
 vtkSlicerKinectTrackingLogic::vtkSlicerKinectTrackingLogic()
 {
-  const std::string targetFileName = "/Users/longquanchen/Desktop/Slicer/KinectTrackingSlicer/StarbuckCup2.vtk";
+  const std::string targetFileName = "/Users/longquanchen/Desktop/Slicer/KinectTrackingSlicer/StarbuckCup.ply";
   this->Initialized   = 0;
   this->SurfaceRendering = true;
   this->EnableTracking = true;
@@ -240,6 +240,11 @@ void vtkSlicerKinectTrackingLogic::ResetTargetModel(vtkSmartPointer<vtkPolyData>
 void vtkSlicerKinectTrackingLogic::ResetRobotToSlicerRegistration(vtkSmartPointer<vtkMatrix4x4> matrix)
 {
   this->RobotToSlicerMatrix->DeepCopy(matrix);
+  float * pos = new float[3];
+  pos[0] = matrix->GetElement(3,0);
+  pos[1] = matrix->GetElement(3,1);
+  pos[2] = matrix->GetElement(3,2);
+  setRobotPos(pos);
 }
 
 //----------------------------------------------------------------------------
