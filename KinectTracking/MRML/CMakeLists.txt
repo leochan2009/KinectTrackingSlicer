@@ -5,20 +5,22 @@ set(KIT "${PROJECT_NAME}")
 set(${KIT}_EXPORT_DIRECTIVE "VTK_SLICER_${MODULE_NAME}_MODULE_MRML_EXPORT")
 
 message(${KIT}_EXPORT_DIRECTIVE)       
-FIND_LIBRARY(OpenIGTLinkLib OpenIGTLink /Users/longquanchen/Desktop/Slicer/OpenIGTLinkPointCloud-XcodeBuild/bin/Debug)
-message(${OpenIGTLinkLib})
+FIND_LIBRARY(OpenIGTLinkLib OpenIGTLink /Users/longquanchen/Desktop/Github/OpenIGTLinkPointCloud/OpenIGTLinkPointCloud-XcodeBuild/bin/Debug)
+FIND_LIBRARY(OpenIGTLinkUtilLib igtlutil /Users/longquanchen/Desktop/Github/OpenIGTLinkPointCloud/OpenIGTLinkPointCloud-XcodeBuild/bin/Debug)
+
+message(${OpenIGTLinkUtilLib})
 FIND_LIBRARY(OpenH264Lib openh264 /Users/longquanchen/Desktop/Slicer/VideoStreamingOpenIGTLink-XcodeBuild/OpenH264)
 FIND_LIBRARY(lib openh264 /Users/longquanchen/Desktop/Slicer/VideoStreamingOpenIGTLink-XcodeBuild/OpenH2644)
 FIND_LIBRARY(AVCODEC avcodec /Users/longquanchen/Downloads/libav-10.7/libavcodec)
 FIND_LIBRARY(AVUTIL avutil /Users/longquanchen/Downloads/libav-10.7/libavutil)
-set(H264Directory /Users/longquanchen/Desktop/Slicer/VideoStreamingOpenIGTLink-XcodeBuild/OpenH264)
+set(H264Directory /Users/longquanchen/Desktop/Github/openh264)
 
 set(${KIT}_INCLUDE_DIRECTORIES
   ${Slicer_Base_INCLUDE_DIRS}
   ${CMAKE_CURRENT_SOURCE_DIR}/../Logic
   ${CMAKE_CURRENT_BINARY_DIR}/../Logic
   ${H264Directory}
-  "/opt/local/include/libomp"
+  "/usr/local/include/libiomp"
   "/Users/longquanchen/Downloads/libav-10.7/"
 #"/Users/longquanchen/Downloads/libav-10.7/libavcodec"
 #"/Users/longquanchen/Downloads/libav-10.7/libavutil"
@@ -44,8 +46,8 @@ set(${KIT}_SRCS
 LINK_DIRECTORIES("/usr/local/lib")
 LINK_DIRECTORIES("/Users/longquanchen/Desktop/Github/OpenIGTLink-xcodeBuild/Testing/OpenH264")
 set(${KIT}_TARGET_LIBRARIES
-  "/Users/longquanchen/Desktop/Slicer/OpenIGTLinkPointCloud-XcodeBuild/bin/Debug/libOpenIGTLink.a"
-  "/Users/longquanchen/Desktop/Slicer/OpenIGTLinkPointCloud-XcodeBuild/bin/Debug/libigtlutil.a"
+  ${OpenIGTLinkLib}
+  ${OpenIGTLinkUtilLib}
   ${MRML_LIBRARIES}
   ${OpenH264Lib}
   SlicerBaseLogic

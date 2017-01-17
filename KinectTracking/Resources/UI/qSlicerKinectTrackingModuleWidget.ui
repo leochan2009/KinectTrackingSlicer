@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>312</height>
+    <width>752</width>
+    <height>550</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -25,7 +25,7 @@
         <x>21</x>
         <y>52</y>
         <width>490</width>
-        <height>159</height>
+        <height>201</height>
        </rect>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -240,99 +240,67 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_11">
-         <item>
-          <widget class="QLabel" name="NodeSelectorLabel">
-           <property name="text">
-            <string>TargetModelInputs</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="qMRMLNodeComboBox" name="NodeSelector" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>10</height>
-            </size>
-           </property>
-           <property name="noneEnabled" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="nodeTypes" stdset="0">
-            <stringlist>
-             <string>vtkMRMLModelNode</string>
-            </stringlist>
-           </property>
-           <property name="addAttribute" stdset="0">
-            <stringlist>
-             <string>vtkMRMLModelNode</string>
-             <string>vtkMRMLDisplayableNode</string>
-             <string>vtkMRMLStorableNode</string>
-            </stringlist>
-           </property>
-           <property name="addEnabled" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="removeEnabled" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="showChildNodeTypes" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="selectNodeUponCreation" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="NodeSelectorLabel2">
-           <property name="text">
-            <string>TransformationRobotToSlicer</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="qMRMLNodeComboBox" name="NodeSelectorTransform">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>10</height>
-            </size>
-           </property>
-           <property name="nodeTypes">
-			<stringlist>
-			 <string>vtkMRMLLinearTransformNode</string>
-			 <string>vtkMRMLBSplineTransformNode</string>
-			 <string>vtkMRMLGridTransformNode</string>
-			 <string>vtkMRMLTransformNode</string>
-			</stringlist>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QLabel" name="NodeSelectorLabel">
+         <property name="text">
+          <string>TargetModelInputs</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qMRMLNodeComboBox" name="NodeSelector" native="true">
+         <property name="noneEnabled" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="nodeTypes" stdset="0">
+          <stringlist>
+           <string>vtkMRMLModelNode</string>
+          </stringlist>
+         </property>
+         <property name="addEnabled" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="removeEnabled" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="showChildNodeTypes" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="selectNodeUponCreation" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="NodeSelectorLabel2">
+         <property name="text">
+          <string>TransformationRobotToSlicer</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="qMRMLNodeComboBox" name="NodeSelectorTransform" native="true">
+         <property name="nodeTypes" stdset="0">
+          <stringlist>
+           <string>vtkMRMLLinearTransformNode</string>
+           <string>vtkMRMLBSplineTransformNode</string>
+           <string>vtkMRMLGridTransformNode</string>
+           <string>vtkMRMLTransformNode</string>
+          </stringlist>
+         </property>
+         <property name="renameEnabled" stdset="0">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
      <widget class="SlicerVideoWidget" name="graphicsView" native="true">
       <property name="geometry">
        <rect>
-        <x>130</x>
-        <y>180</y>
-        <width>512</width>
-        <height>424</height>
+        <x>20</x>
+        <y>260</y>
+        <width>491</width>
+        <height>301</height>
        </rect>
       </property>
      </widget>
@@ -362,16 +330,31 @@
    <sender>qSlicerKinectTrackingModuleWidget</sender>
    <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>NodeSelector</receiver>
+   <slot>setMRMLScene(vtkMRMLScene*)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>qSlicerKinectTrackingModuleWidget</sender>
+   <signal>mrmlSceneChanged(vtkMRMLScene*)</signal>
    <receiver>NodeSelectorTransform</receiver>
    <slot>setMRMLScene(vtkMRMLScene*)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>248</x>
-     <y>1</y>
+     <x>20</x>
+     <y>20</y>
     </hint>
     <hint type="destinationlabel">
-     <x>230</x>
-     <y>19</y>
+     <x>20</x>
+     <y>20</y>
     </hint>
    </hints>
   </connection>

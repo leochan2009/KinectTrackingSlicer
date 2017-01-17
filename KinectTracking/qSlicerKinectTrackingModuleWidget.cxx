@@ -221,7 +221,7 @@ void qSlicerKinectTrackingModuleWidget::AddingNode(vtkObject* sceneObject, vtkOb
 {
   Q_D(qSlicerKinectTrackingModuleWidget);
   vtkMRMLScene* scene = vtkMRMLScene::SafeDownCast(sceneObject);
-  if (!scene || (strcmp(nodeObject->GetClassName(),"vtkMRMLScalarVolumeNode")==0))
+  if (scene &&  (strcmp(nodeObject->GetClassName(),"vtkMRMLScalarVolumeNode")==0))
   {
   // Connect segment added and removed events to plugin to update subject hierarchy accordingly
     vtkMRMLScalarVolumeNode* node = vtkMRMLScalarVolumeNode::SafeDownCast(nodeObject);
@@ -231,7 +231,9 @@ void qSlicerKinectTrackingModuleWidget::AddingNode(vtkObject* sceneObject, vtkOb
       SelectImageModel(node);
     }
   }
-  if (!scene || (strcmp(nodeObject->GetClassName(),"vtkMRMLTransformNode")==0))
+  if (scene && ((strcmp(nodeObject->GetClassName(),"vtkMRMLLinearTransformNode")==0)||
+                (strcmp(nodeObject->GetClassName(),"vtkMRMLBSplineTransformNode")==0)||
+                (strcmp(nodeObject->GetClassName(),"vtkMRMLTransformNode")==0) ))
   {
   
     // Connect segment added and removed events to plugin to update subject hierarchy accordingly
@@ -248,7 +250,7 @@ void qSlicerKinectTrackingModuleWidget::AddingNode(vtkObject* sceneObject, vtkOb
     }
   }
   
-  if (!scene && (strcmp(nodeObject->GetClassName(),"vtkMRMLModelNode")==0))
+  if (scene && (strcmp(nodeObject->GetClassName(),"vtkMRMLModelNode")==0))
   {
     
     // Connect segment added and removed events to plugin to update subject hierarchy accordingly
